@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-01-17
+
+### Added
+
+- `echidna validate` - Validate bundle structure and configuration
+  - Checks pyproject.toml for required sections ([build-system], [project], [chimerax])
+  - Validates presence of ChimeraX-BundleBuilder in build requirements
+  - Validates source directory structure (src/__init__.py)
+  - Reports errors and warnings for configuration issues
+- `echidna info` - Show bundle information and status
+  - Displays bundle name, package name, version, and description
+  - Shows build status (latest wheel, build time)
+  - Shows ChimeraX installation status if ChimeraX is available
+
 ## [0.2.0] - 2026-01-17
 
 ### Added
@@ -35,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-detection of ChimeraX installation on macOS, Linux, and Windows
 - Template generation for pyproject.toml, __init__.py, cmd.py, smoke.cxc, and README.md
 
-[Unreleased]: https://github.com/nagaet/echidna/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/nagaet/echidna/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/nagaet/echidna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nagaet/echidna/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/nagaet/echidna/releases/tag/v0.1.0

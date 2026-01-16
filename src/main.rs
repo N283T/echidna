@@ -3,7 +3,7 @@
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
-use echidna::commands::{build, clean, init, install, python, run, setup_ide};
+use echidna::commands::{build, clean, info, init, install, python, run, setup_ide, validate};
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
 use std::io;
@@ -146,6 +146,20 @@ enum Command {
         dry_run: bool,
     },
 
+    /// Validate bundle structure and configuration
+    Validate {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+    },
+
+    /// Show bundle information and status
+    Info {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+    },
+
     /// Generate shell completions
     Completions {
         /// Shell to generate completions for
@@ -275,6 +289,14 @@ fn run_cli() -> Result<()> {
         Command::Clean { path, all, dry_run } => {
             clean::execute(clean::CleanArgs { path, all, dry_run })
         }
+
+        Command::Validate { path } => validate::execute(validate::ValidateArgs { path }),
+
+        Command::Info { path } => info::execute(info::InfoArgs {
+            path,
+            chimerax: chimerax_path().ok(),
+            verbosity,
+        }),
 
         Command::Completions { shell } => {
             let mut cmd = Cli::command();

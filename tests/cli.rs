@@ -21,7 +21,9 @@ fn test_help() {
         .stdout(predicate::str::contains("install"))
         .stdout(predicate::str::contains("run"))
         .stdout(predicate::str::contains("setup-ide"))
-        .stdout(predicate::str::contains("clean"));
+        .stdout(predicate::str::contains("clean"))
+        .stdout(predicate::str::contains("validate"))
+        .stdout(predicate::str::contains("info"));
 }
 
 #[test]
@@ -188,4 +190,26 @@ fn test_clean_help() {
         .stdout(predicate::str::contains("Clean build artifacts"))
         .stdout(predicate::str::contains("--all"))
         .stdout(predicate::str::contains("--dry-run"));
+}
+
+#[test]
+fn test_validate_help() {
+    echidna()
+        .args(["validate", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Validate bundle structure and configuration",
+        ));
+}
+
+#[test]
+fn test_info_help() {
+    echidna()
+        .args(["info", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Show bundle information and status",
+        ));
 }
