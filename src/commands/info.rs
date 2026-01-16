@@ -174,15 +174,40 @@ fn parse_bundle_info(pyproject_path: &Path) -> Result<BundleInfo> {
     })
 }
 
+/// Validate that a package name is safe to use in Python code.
+/// Package names should only contain alphanumeric characters, underscores, and dots.
+fn is_valid_package_name(name: &str) -> bool {
+    if name.is_empty() {
+        return false;
+    }
+
+    // First character must be a letter or underscore
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(c) if c.is_ascii_alphabetic() || c == '_' => {}
+        _ => return false,
+    }
+
+    // Remaining characters must be alphanumeric, underscore, or dot
+    chars.all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '.')
+}
+
 /// Check if a bundle is installed in ChimeraX.
 fn check_bundle_installed(executor: &ChimeraXExecutor, package_name: &str) -> Result<bool> {
+    // Validate package name to prevent code injection
+    if !is_valid_package_name(package_name) {
+        return Err(EchidnaError::ConfigError(format!(
+            "Invalid package name: {}",
+            package_name
+        )));
+    }
+
+    // Use importlib.util.find_spec which is safer than direct import
     let python_code = format!(
         r#"
-try:
-    import {}
-    print("INSTALLED:YES")
-except ImportError:
-    print("INSTALLED:NO")
+import importlib.util
+spec = importlib.util.find_spec("{}")
+print("INSTALLED:YES" if spec else "INSTALLED:NO")
 "#,
         package_name
     );
@@ -258,5 +283,32 @@ package = "chimerax.test"
 
         let result = parse_bundle_info(&temp.path().join("pyproject.toml"));
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_valid_package_names() {
+        // Valid package names
+        assert!(is_valid_package_name("chimerax.test"));
+        assert!(is_valid_package_name("chimerax.my_tool"));
+        assert!(is_valid_package_name("chimerax.mytool123"));
+        assert!(is_valid_package_name("_private.module"));
+        assert!(is_valid_package_name("a"));
+    }
+
+    #[test]
+    fn test_invalid_package_names() {
+        // Empty string
+        assert!(!is_valid_package_name(""));
+
+        // Starts with number
+        assert!(!is_valid_package_name("123abc"));
+
+        // Contains invalid characters
+        assert!(!is_valid_package_name("os; rm -rf /"));
+        assert!(!is_valid_package_name("chimerax.test; import os"));
+        assert!(!is_valid_package_name("chimerax.test\nimport os"));
+        assert!(!is_valid_package_name("package-name"));
+        assert!(!is_valid_package_name("package name"));
+        assert!(!is_valid_package_name("package(name)"));
     }
 }

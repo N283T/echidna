@@ -99,10 +99,10 @@ pub fn validate_bundle(project_dir: &Path) -> Result<ValidationResult> {
     validate_project_section(&pyproject, &mut result);
 
     // Validate [chimerax]
-    let package_dir = validate_chimerax_section(&pyproject, &mut result);
+    validate_chimerax_section(&pyproject, &mut result);
 
     // Validate source directory structure
-    validate_source_structure(project_dir, package_dir.as_deref(), &mut result);
+    validate_source_structure(project_dir, &mut result);
 
     Ok(result)
 }
@@ -182,21 +182,18 @@ fn validate_project_section(pyproject: &toml::Value, result: &mut ValidationResu
     }
 }
 
-/// Validate [chimerax] section and return package directory name.
-fn validate_chimerax_section(
-    pyproject: &toml::Value,
-    result: &mut ValidationResult,
-) -> Option<String> {
+/// Validate [chimerax] section.
+fn validate_chimerax_section(pyproject: &toml::Value, result: &mut ValidationResult) {
     let chimerax = match pyproject.get("chimerax") {
         Some(c) => c,
         None => {
             result.add_error("[chimerax] section missing");
-            return None;
+            return;
         }
     };
 
     // Check package
-    let package_dir = if let Some(package) = chimerax.get("package") {
+    if let Some(package) = chimerax.get("package") {
         if let Some(package_str) = package.as_str() {
             if !package_str.starts_with("chimerax.") {
                 result.add_warning(format!(
@@ -204,31 +201,21 @@ fn validate_chimerax_section(
                     package_str
                 ));
             }
-            // Extract package directory (e.g., "chimerax.mytool" -> "mytool")
-            package_str.strip_prefix("chimerax.").map(|s| s.to_string())
         } else {
             result.add_error("[chimerax].package must be a string");
-            None
         }
     } else {
         result.add_error("[chimerax].package is missing");
-        None
-    };
+    }
 
     // Check categories (optional but recommended)
     if chimerax.get("categories").is_none() {
         result.add_warning("[chimerax].categories is not set");
     }
-
-    package_dir
 }
 
 /// Validate source directory structure.
-fn validate_source_structure(
-    project_dir: &Path,
-    _package_dir: Option<&str>,
-    result: &mut ValidationResult,
-) {
+fn validate_source_structure(project_dir: &Path, result: &mut ValidationResult) {
     let src_dir = project_dir.join("src");
 
     if !src_dir.exists() {
