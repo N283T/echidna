@@ -10,6 +10,9 @@ ChimeraX Bundle Development CLI - A command-line tool for developing [UCSF Chime
 - **Project scaffolding** - Generate a new bundle project with proper structure
 - **Build automation** - Build wheel packages using ChimeraX's bundle builder
 - **Quick iteration** - Build, install, and launch ChimeraX in one command
+- **IDE integration** - Set up virtual environment for type checkers and IDEs
+- **Testing support** - Run pytest tests using ChimeraX's Python environment
+- **Validation** - Validate bundle structure and configuration
 - **Cross-platform** - Works on macOS, Linux, and Windows
 
 ## Installation
@@ -106,6 +109,76 @@ echidna python              # Text output
 echidna python --format json
 ```
 
+### `echidna setup-ide [PATH]`
+
+Set up IDE and type checker environment by creating a virtual environment that references ChimeraX's Python.
+
+```bash
+echidna setup-ide                   # Create .venv in current directory
+echidna setup-ide --output .venv    # Specify output directory
+echidna setup-ide --force           # Overwrite existing venv
+echidna setup-ide --no-config       # Skip generating config files
+echidna setup-ide --configs ty,ruff # Generate specific config files
+```
+
+This creates a `.venv` directory that IDEs and type checkers (ty, ruff, pyright) can use to resolve `chimerax` imports.
+
+### `echidna clean [PATH]`
+
+Clean build artifacts from the project.
+
+```bash
+echidna clean              # Remove build/, dist/, *.egg-info/
+echidna clean --all        # Also remove .venv/
+echidna clean --dry-run    # Show what would be deleted
+```
+
+### `echidna validate [PATH]`
+
+Validate bundle structure and configuration.
+
+```bash
+echidna validate           # Validate current directory
+echidna validate ./my-tool # Validate specific project
+```
+
+Checks for:
+- Valid `pyproject.toml` with required fields
+- Correct bundle_info structure
+- Required source files exist
+
+### `echidna info [PATH]`
+
+Show bundle information and status.
+
+```bash
+echidna info               # Show info for current directory
+```
+
+Displays:
+- Bundle name and version
+- Package name and description
+- ChimeraX installation status
+- Build artifacts status
+
+### `echidna test [PATH]`
+
+Run tests using ChimeraX's Python environment with pytest.
+
+```bash
+echidna test                       # Run all tests in tests/
+echidna test -k test_foo           # Filter tests by expression
+echidna test --verbose             # Increase pytest verbosity
+echidna test --no-build            # Skip build step
+echidna test --no-install          # Skip install step
+echidna test -- --cov=src          # Pass additional pytest args
+```
+
+**Note:** Requires pytest installed in ChimeraX's Python environment:
+```bash
+ChimeraX -m pip install pytest
+```
+
 ## Configuration
 
 Create `echidna.toml` in your project root:
@@ -137,6 +210,8 @@ my-tool/
 ├── src/
 │   ├── __init__.py     # Bundle initialization
 │   └── cmd.py          # Command implementation
+├── tests/              # Test files (for echidna test)
+│   └── test_*.py       # pytest test modules
 ├── scripts/
 │   └── smoke.cxc       # Test script
 └── README.md
