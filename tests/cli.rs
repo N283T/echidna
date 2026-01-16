@@ -19,7 +19,9 @@ fn test_help() {
         .stdout(predicate::str::contains("init"))
         .stdout(predicate::str::contains("build"))
         .stdout(predicate::str::contains("install"))
-        .stdout(predicate::str::contains("run"));
+        .stdout(predicate::str::contains("run"))
+        .stdout(predicate::str::contains("setup-ide"))
+        .stdout(predicate::str::contains("clean"));
 }
 
 #[test]
@@ -160,4 +162,30 @@ fn test_completions_powershell() {
         .assert()
         .success()
         .stdout(predicate::str::contains("Register-ArgumentCompleter"));
+}
+
+#[test]
+fn test_setup_ide_help() {
+    echidna()
+        .args(["setup-ide", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Set up IDE/type checker environment",
+        ))
+        .stdout(predicate::str::contains("--output"))
+        .stdout(predicate::str::contains("--force"))
+        .stdout(predicate::str::contains("--no-config"))
+        .stdout(predicate::str::contains("--configs"));
+}
+
+#[test]
+fn test_clean_help() {
+    echidna()
+        .args(["clean", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Clean build artifacts"))
+        .stdout(predicate::str::contains("--all"))
+        .stdout(predicate::str::contains("--dry-run"));
 }

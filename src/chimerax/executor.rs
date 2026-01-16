@@ -220,7 +220,7 @@ print("ECHIDNA_JSON_END")
 }
 
 /// Python environment information from ChimeraX.
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PythonInfo {
     pub executable: String,
     pub version: String,

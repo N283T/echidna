@@ -3,7 +3,7 @@
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
-use echidna::commands::{build, init, install, python, run};
+use echidna::commands::{build, clean, init, install, python, run, setup_ide};
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
 use std::io;
@@ -106,6 +106,44 @@ enum Command {
         /// Output format
         #[arg(short, long, default_value = "text")]
         format: OutputFormat,
+    },
+
+    /// Set up IDE/type checker environment
+    SetupIde {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Output directory for venv
+        #[arg(short, long, default_value = ".venv")]
+        output: PathBuf,
+
+        /// Force overwrite existing venv
+        #[arg(short, long)]
+        force: bool,
+
+        /// Skip generating type checker config files
+        #[arg(long)]
+        no_config: bool,
+
+        /// Config files to generate (comma-separated: ty,ruff,pyright,vscode)
+        #[arg(long, value_delimiter = ',')]
+        configs: Vec<String>,
+    },
+
+    /// Clean build artifacts
+    Clean {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Also remove .venv directory
+        #[arg(long)]
+        all: bool,
+
+        /// Show what would be deleted without actually deleting
+        #[arg(long)]
+        dry_run: bool,
     },
 
     /// Generate shell completions
@@ -217,6 +255,26 @@ fn run_cli() -> Result<()> {
             chimerax: chimerax_path()?,
             verbosity,
         }),
+
+        Command::SetupIde {
+            path,
+            output,
+            force,
+            no_config,
+            configs,
+        } => setup_ide::execute(setup_ide::SetupIdeArgs {
+            path,
+            output,
+            force,
+            no_config,
+            configs,
+            chimerax: chimerax_path()?,
+            verbosity,
+        }),
+
+        Command::Clean { path, all, dry_run } => {
+            clean::execute(clean::CleanArgs { path, all, dry_run })
+        }
 
         Command::Completions { shell } => {
             let mut cmd = Cli::command();
