@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-01-17
+
+### Added
+
+- `echidna setup-ide` - Set up IDE/type checker environment with venv pointing to ChimeraX Python
+  - Creates `.venv` directory with symlinks to ChimeraX's Python
+  - Generates `ty.toml` and ruff configuration by default
+  - `--configs` flag to select which configs to generate (ty, ruff)
+  - `--force` flag to overwrite existing venv
+  - `--no-config` flag to skip configuration file generation
+- `echidna clean` - Clean build artifacts
+  - Removes `build/`, `dist/`, `*.egg-info/`, and `__pycache__/` directories
+  - `--all` flag to also remove `.venv`
+  - `--dry-run` flag to preview what would be deleted
+
 ## [0.1.0] - 2025-01-16
 
 ### Added
@@ -20,5 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-detection of ChimeraX installation on macOS, Linux, and Windows
 - Template generation for pyproject.toml, __init__.py, cmd.py, smoke.cxc, and README.md
 
-[Unreleased]: https://github.com/N283T/echidna/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/N283T/echidna/releases/tag/v0.1.0
+[Unreleased]: https://github.com/nagaet/echidna/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/nagaet/echidna/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/nagaet/echidna/releases/tag/v0.1.0

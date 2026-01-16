@@ -24,6 +24,9 @@ pub enum EchidnaError {
     #[error("Directory already exists: {0}")]
     DirectoryExists(PathBuf),
 
+    #[error("Venv already exists at {0}. Use --force to overwrite.")]
+    VenvExists(PathBuf),
+
     #[error("Template generation failed: {0}")]
     TemplateError(String),
 

@@ -51,7 +51,7 @@ pub fn execute(args: PythonArgs) -> Result<()> {
             }
 
             println!();
-            println!("Use this information to configure type checkers (ruff, ty, pyright):");
+            println!("Use this information to configure type checkers (ty, ruff):");
             println!("  pythonPath = \"{}\"", info.executable);
         }
         OutputFormat::Json => {
