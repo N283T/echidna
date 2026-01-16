@@ -1,6 +1,6 @@
 # echidna
 
-[![CI](https://github.com/nagaet/echidna/actions/workflows/ci.yml/badge.svg)](https://github.com/nagaet/echidna/actions/workflows/ci.yml)
+[![CI](https://github.com/N283T/echidna/actions/workflows/ci.yml/badge.svg)](https://github.com/N283T/echidna/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ChimeraX Bundle Development CLI - A command-line tool for developing [UCSF ChimeraX](https://www.cgl.ucsf.edu/chimerax/) bundles.
@@ -16,13 +16,13 @@ ChimeraX Bundle Development CLI - A command-line tool for developing [UCSF Chime
 
 ### From GitHub Releases
 
-Download the latest binary from the [Releases](https://github.com/nagaet/echidna/releases) page.
+Download the latest binary from the [Releases](https://github.com/N283T/echidna/releases) page.
 
 #### macOS / Linux
 
 ```bash
 # Download and extract (replace VERSION and TARGET)
-curl -LO https://github.com/nagaet/echidna/releases/latest/download/echidna-TARGET.tar.gz
+curl -LO https://github.com/N283T/echidna/releases/latest/download/echidna-TARGET.tar.gz
 tar -xzf echidna-TARGET.tar.gz
 sudo mv echidna /usr/local/bin/
 ```
@@ -34,7 +34,7 @@ Download `echidna-x86_64-pc-windows-msvc.zip` from Releases and add to PATH.
 ### From Source
 
 ```bash
-git clone https://github.com/nagaet/echidna.git
+git clone https://github.com/N283T/echidna.git
 cd echidna
 cargo install --path .
 ```

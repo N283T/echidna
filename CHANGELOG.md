@@ -20,5 +20,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-detection of ChimeraX installation on macOS, Linux, and Windows
 - Template generation for pyproject.toml, __init__.py, cmd.py, smoke.cxc, and README.md
 
-[Unreleased]: https://github.com/nagaet/echidna/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/nagaet/echidna/releases/tag/v0.1.0
+[Unreleased]: https://github.com/N283T/echidna/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/N283T/echidna/releases/tag/v0.1.0
