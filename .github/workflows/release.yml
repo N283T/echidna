@@ -1,0 +1,159 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  verify:
+    name: Verify Version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Get tag version
+        id: tag
+        run: |
+          TAG_VERSION=${GITHUB_REF_NAME#v}
+          echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
+          echo "Tag version: $TAG_VERSION"
+
+      - name: Check Cargo.toml version
+        run: |
+          CARGO_VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/.*"\(.*\)"/\1/')
+          echo "Cargo.toml version: $CARGO_VERSION"
+          if [ "$CARGO_VERSION" != "${{ steps.tag.outputs.version }}" ]; then
+            echo "::error::Version mismatch: tag=${{ steps.tag.outputs.version }}, Cargo.toml=$CARGO_VERSION"
+            exit 1
+          fi
+          echo "Cargo.toml version matches tag"
+
+      - name: Check CLI --version output
+        run: |
+          cargo build --release
+          CLI_VERSION=$(./target/release/echidna --version | awk '{print $2}')
+          echo "CLI --version: $CLI_VERSION"
+          if [ "$CLI_VERSION" != "${{ steps.tag.outputs.version }}" ]; then
+            echo "::error::Version mismatch: tag=${{ steps.tag.outputs.version }}, CLI=$CLI_VERSION"
+            exit 1
+          fi
+          echo "CLI version matches tag"
+
+      - name: Check CHANGELOG.md has entry
+        run: |
+          if ! grep -q "## \[${{ steps.tag.outputs.version }}\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md missing entry for version ${{ steps.tag.outputs.version }}"
+            exit 1
+          fi
+          echo "CHANGELOG.md has entry for ${{ steps.tag.outputs.version }}"
+
+  build:
+    name: Build (${{ matrix.target }})
+    needs: verify
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: echidna
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: echidna
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: echidna
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: echidna.exe
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build release
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Create archive (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar -czvf ../../../echidna-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
+
+      - name: Create archive (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a ../../../echidna-${{ matrix.target }}.zip ${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: echidna-${{ matrix.target }}
+          path: echidna-${{ matrix.target }}.*
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Extract changelog section for this version
+          awk -v ver="$VERSION" '
+            /^## \[/ {
+              if (found) exit
+              if ($0 ~ "\\[" ver "\\]") found=1
+              next
+            }
+            found { print }
+          ' CHANGELOG.md > release_notes.md
+
+          # If no specific version found, use Unreleased section
+          if [ ! -s release_notes.md ]; then
+            awk '
+              /^## \[Unreleased\]/ { found=1; next }
+              /^## \[/ { if (found) exit }
+              found { print }
+            ' CHANGELOG.md > release_notes.md
+          fi
+
+          echo "Release notes:"
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: echidna ${{ github.ref_name }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            artifacts/*

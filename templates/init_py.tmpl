@@ -1,0 +1,26 @@
+"""{{bundle_name}} - {{description}}"""
+
+from chimerax.core.toolshed import BundleAPI
+
+
+class _{{command_name_pascal}}API(BundleAPI):
+    """Bundle API for {{bundle_name}}."""
+
+    api_version = 1
+
+    @staticmethod
+    def register_command(bundle_info, command_info, logger):
+        """Register the '{{command_name}}' command."""
+        from . import cmd
+
+        if command_info.name == "{{command_name}}":
+            from chimerax.core.commands import register
+
+            register(
+                command_info.name,
+                cmd.{{command_name}}_desc,
+                cmd.{{command_name}},
+            )
+
+
+bundle_api = _{{command_name_pascal}}API()
