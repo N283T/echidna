@@ -46,6 +46,11 @@ impl ChimeraXExecutor {
         }
     }
 
+    /// Get the path to the ChimeraX executable.
+    pub fn executable(&self) -> &PathBuf {
+        &self.executable
+    }
+
     /// Execute a ChimeraX command in nogui mode.
     pub fn run_command(&self, cmd: &str) -> Result<Output> {
         self.log_execution(&format!("ChimeraX --nogui --exit --cmd '{}'", cmd));

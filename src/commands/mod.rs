@@ -8,4 +8,5 @@ pub mod install;
 pub mod python;
 pub mod run;
 pub mod setup_ide;
+pub mod testing;
 pub mod validate;
