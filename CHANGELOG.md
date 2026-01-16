@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `echidna setup-ide` - Set up IDE/type checker environment with venv pointing to ChimeraX Python
   - Creates `.venv` directory with symlinks to ChimeraX's Python
   - Generates `ty.toml` and ruff configuration by default
-  - Optional `--configs` flag to generate pyright and vscode settings
+  - `--configs` flag to select which configs to generate (ty, ruff)
   - `--force` flag to overwrite existing venv
   - `--no-config` flag to skip configuration file generation
 - `echidna clean` - Clean build artifacts

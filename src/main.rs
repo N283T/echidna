@@ -126,7 +126,7 @@ enum Command {
         #[arg(long)]
         no_config: bool,
 
-        /// Config files to generate (comma-separated: ty,ruff,pyright,vscode)
+        /// Config files to generate (comma-separated: ty,ruff)
         #[arg(long, value_delimiter = ',')]
         configs: Vec<String>,
     },

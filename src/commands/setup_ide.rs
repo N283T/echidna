@@ -61,7 +61,7 @@ pub fn execute(args: SetupIdeArgs) -> Result<()> {
                     set.insert(ct);
                 } else {
                     eprintln!(
-                        "Warning: Unknown config type '{}', skipping. Valid types: ty, ruff, pyright, vscode",
+                        "Warning: Unknown config type '{}', skipping. Valid types: ty, ruff",
                         name
                     );
                 }
