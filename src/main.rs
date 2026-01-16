@@ -3,7 +3,9 @@
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
-use echidna::commands::{build, clean, info, init, install, python, run, setup_ide, validate};
+use echidna::commands::{
+    build, clean, info, init, install, python, run, setup_ide, testing, validate,
+};
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
 use std::io;
@@ -160,6 +162,33 @@ enum Command {
         path: PathBuf,
     },
 
+    /// Run tests using ChimeraX Python environment
+    Test {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Only run tests matching the given expression
+        #[arg(short = 'k', long)]
+        filter: Option<String>,
+
+        /// Increase pytest verbosity
+        #[arg(long)]
+        verbose: bool,
+
+        /// Skip build step
+        #[arg(long)]
+        no_build: bool,
+
+        /// Skip install step
+        #[arg(long)]
+        no_install: bool,
+
+        /// Additional arguments passed to pytest
+        #[arg(last = true)]
+        pytest_args: Vec<String>,
+    },
+
     /// Generate shell completions
     Completions {
         /// Shell to generate completions for
@@ -295,6 +324,24 @@ fn run_cli() -> Result<()> {
         Command::Info { path } => info::execute(info::InfoArgs {
             path,
             chimerax: chimerax_path().ok(),
+            verbosity,
+        }),
+
+        Command::Test {
+            path,
+            filter,
+            verbose,
+            no_build,
+            no_install,
+            pytest_args,
+        } => testing::execute(testing::TestArgs {
+            path,
+            filter,
+            verbose,
+            no_build,
+            no_install,
+            pytest_args,
+            chimerax: chimerax_path()?,
             verbosity,
         }),
 

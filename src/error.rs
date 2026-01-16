@@ -36,6 +36,9 @@ pub enum EchidnaError {
     #[error("Invalid name: {0}")]
     InvalidName(String),
 
+    #[error("Tests failed (exit code: {0})")]
+    TestFailed(i32),
+
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 

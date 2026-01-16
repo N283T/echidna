@@ -23,7 +23,8 @@ fn test_help() {
         .stdout(predicate::str::contains("setup-ide"))
         .stdout(predicate::str::contains("clean"))
         .stdout(predicate::str::contains("validate"))
-        .stdout(predicate::str::contains("info"));
+        .stdout(predicate::str::contains("info"))
+        .stdout(predicate::str::contains("test"));
 }
 
 #[test]
@@ -212,4 +213,18 @@ fn test_info_help() {
         .stdout(predicate::str::contains(
             "Show bundle information and status",
         ));
+}
+
+#[test]
+fn test_test_help() {
+    echidna()
+        .args(["test", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Run tests using ChimeraX Python environment",
+        ))
+        .stdout(predicate::str::contains("--filter"))
+        .stdout(predicate::str::contains("--no-build"))
+        .stdout(predicate::str::contains("--no-install"));
 }
