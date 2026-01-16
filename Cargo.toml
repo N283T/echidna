@@ -10,7 +10,7 @@ repository = "https://github.com/nagaet/echidna"
 clap = { version = "4", features = ["derive", "env"] }
 clap_complete = "4"
 serde = { version = "1", features = ["derive"] }
-toml = "0.8"
+toml = "0.9"
 thiserror = "2"
 which = "7"
 dirs = "5"
