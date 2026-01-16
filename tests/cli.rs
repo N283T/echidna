@@ -209,5 +209,7 @@ fn test_info_help() {
         .args(["info", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Show bundle information and status"));
+        .stdout(predicate::str::contains(
+            "Show bundle information and status",
+        ));
 }
