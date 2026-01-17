@@ -26,7 +26,8 @@ fn test_help() {
         .stdout(predicate::str::contains("info"))
         .stdout(predicate::str::contains("test"))
         .stdout(predicate::str::contains("watch"))
-        .stdout(predicate::str::contains("version"));
+        .stdout(predicate::str::contains("version"))
+        .stdout(predicate::str::contains("debug"));
 }
 
 #[test]
@@ -280,4 +281,17 @@ fn test_version_help() {
         .stdout(predicate::str::contains(
             "Manage bundle version in pyproject.toml",
         ));
+}
+
+#[test]
+fn test_debug_help() {
+    echidna()
+        .args(["debug", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Launch ChimeraX in debug mode"))
+        .stdout(predicate::str::contains("--pdb"))
+        .stdout(predicate::str::contains("--profile"))
+        .stdout(predicate::str::contains("--no-build"))
+        .stdout(predicate::str::contains("--no-install"));
 }
