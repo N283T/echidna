@@ -29,25 +29,6 @@ pub struct TestArgs {
     pub verbosity: Verbosity,
 }
 
-/// Test result summary.
-#[derive(Debug, Default)]
-pub struct TestResult {
-    pub passed: u32,
-    pub failed: u32,
-    pub skipped: u32,
-    pub errors: u32,
-}
-
-impl TestResult {
-    pub fn is_success(&self) -> bool {
-        self.failed == 0 && self.errors == 0
-    }
-
-    pub fn total(&self) -> u32 {
-        self.passed + self.failed + self.skipped + self.errors
-    }
-}
-
 /// Execute the test command.
 pub fn execute(args: TestArgs) -> Result<()> {
     let project_dir = args.path.canonicalize().unwrap_or(args.path.clone());
@@ -279,33 +260,6 @@ mod tests {
         assert!(!is_valid_pytest_filter("test'injection"));
         assert!(!is_valid_pytest_filter("test`cmd`"));
         assert!(!is_valid_pytest_filter("$HOME"));
-    }
-
-    #[test]
-    fn test_result_is_success() {
-        let mut result = TestResult::default();
-        assert!(result.is_success());
-
-        result.passed = 10;
-        assert!(result.is_success());
-
-        result.failed = 1;
-        assert!(!result.is_success());
-
-        result.failed = 0;
-        result.errors = 1;
-        assert!(!result.is_success());
-    }
-
-    #[test]
-    fn test_result_total() {
-        let result = TestResult {
-            passed: 5,
-            failed: 2,
-            skipped: 1,
-            errors: 0,
-        };
-        assert_eq!(result.total(), 8);
     }
 
     #[test]
