@@ -157,6 +157,10 @@ enum Command {
         /// Project directory
         #[arg(default_value = ".")]
         path: PathBuf,
+
+        /// Treat warnings as errors
+        #[arg(long)]
+        strict: bool,
     },
 
     /// Show bundle information and status
@@ -351,7 +355,9 @@ fn run_cli() -> Result<()> {
             clean::execute(clean::CleanArgs { path, all, dry_run })
         }
 
-        Command::Validate { path } => validate::execute(validate::ValidateArgs { path }),
+        Command::Validate { path, strict } => {
+            validate::execute(validate::ValidateArgs { path, strict })
+        }
 
         Command::Info { path } => info::execute(info::InfoArgs {
             path,
