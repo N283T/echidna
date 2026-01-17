@@ -2,6 +2,7 @@
 
 pub mod build;
 pub mod clean;
+pub mod debug;
 pub mod docs;
 pub mod info;
 pub mod init;

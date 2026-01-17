@@ -4,8 +4,8 @@ use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
 use echidna::commands::{
-    build, clean, docs, info, init, install, publish, python, run, setup_ide, testing, validate,
-    version, watch,
+    build, clean, debug, docs, info, init, install, publish, python, run, setup_ide, testing,
+    validate, version, watch,
 };
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
@@ -260,6 +260,29 @@ enum Command {
         #[arg(default_value = "show")]
         action: String,
     },
+
+    /// Launch ChimeraX in debug mode
+    Debug {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Enable Python debugger (pdb) on exceptions
+        #[arg(long)]
+        pdb: bool,
+
+        /// Enable profiling
+        #[arg(long)]
+        profile: bool,
+
+        /// Skip build step
+        #[arg(long)]
+        no_build: bool,
+
+        /// Skip install step
+        #[arg(long)]
+        no_install: bool,
+    },
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -447,6 +470,22 @@ fn run_cli() -> Result<()> {
                 action: version_action,
             })
         }
+
+        Command::Debug {
+            path,
+            pdb,
+            profile,
+            no_build,
+            no_install,
+        } => debug::execute(debug::DebugArgs {
+            path,
+            pdb,
+            profile,
+            no_build,
+            no_install,
+            chimerax: chimerax_path()?,
+            verbosity,
+        }),
     }
 }
 
