@@ -7,7 +7,7 @@ use std::path::Path;
 /// Arguments for the init command.
 pub struct InitArgs {
     pub name: Option<String>,
-    pub bundle_type: String,
+    pub bundle_type: BundleType,
     pub bundle_name: Option<String>,
     pub package: Option<String>,
     pub path: std::path::PathBuf,
@@ -17,14 +17,7 @@ pub struct InitArgs {
 /// Execute the init command.
 pub fn execute(args: InitArgs) -> Result<()> {
     let target_dir = &args.path;
-
-    // Parse bundle type
-    let bundle_type = BundleType::parse(&args.bundle_type).ok_or_else(|| {
-        EchidnaError::InvalidName(format!(
-            "invalid bundle type '{}'. Valid types: command, tool, tool-html, format, fetch, selector, preset",
-            args.bundle_type
-        ))
-    })?;
+    let bundle_type = args.bundle_type;
 
     // Determine the project name
     let name = match args.name {

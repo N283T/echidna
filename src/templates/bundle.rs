@@ -1,10 +1,11 @@
 //! Bundle template generation.
 
 use crate::error::{EchidnaError, Result};
+use clap::ValueEnum;
 use std::path::Path;
 
 /// Bundle type for template generation.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, ValueEnum)]
 pub enum BundleType {
     /// Command-only bundle (default)
     #[default]
@@ -12,6 +13,7 @@ pub enum BundleType {
     /// Qt-based GUI tool
     Tool,
     /// HTML-based GUI tool
+    #[value(name = "tool-html", alias = "toolhtml")]
     ToolHtml,
     /// File format reader/writer
     Format,
@@ -22,23 +24,16 @@ pub enum BundleType {
     /// Visualization presets
     Preset,
     /// C/C++ extension bundle
+    #[value(alias = "c++")]
     Cpp,
 }
 
 impl BundleType {
-    /// Parse bundle type from string.
+    /// Parse bundle type from string (for backwards compatibility).
+    /// Uses clap's ValueEnum parsing under the hood.
     pub fn parse(s: &str) -> Option<Self> {
-        match s.to_lowercase().as_str() {
-            "command" => Some(Self::Command),
-            "tool" => Some(Self::Tool),
-            "tool-html" | "toolhtml" => Some(Self::ToolHtml),
-            "format" => Some(Self::Format),
-            "fetch" => Some(Self::Fetch),
-            "selector" => Some(Self::Selector),
-            "preset" => Some(Self::Preset),
-            "cpp" | "c++" => Some(Self::Cpp),
-            _ => None,
-        }
+        // ValueEnum::from_str takes (s, ignore_case)
+        Self::from_str(s, true).ok()
     }
 
     /// Get display name for the bundle type.

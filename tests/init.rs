@@ -332,7 +332,7 @@ fn test_init_with_invalid_type() {
         ])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("invalid bundle type"));
+        .stderr(predicate::str::contains("invalid value"));
 }
 
 #[test]
