@@ -26,10 +26,7 @@ pub fn execute(args: DocsArgs) -> Result<()> {
     println!("Opening: {}", url);
 
     open::that(&url).map_err(|e| {
-        EchidnaError::Io(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("Failed to open browser: {}", e),
-        ))
+        EchidnaError::Io(std::io::Error::other(format!("Failed to open browser: {}", e)))
     })?;
 
     Ok(())
