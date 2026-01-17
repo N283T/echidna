@@ -284,6 +284,39 @@ fn test_init_with_type_format() {
 }
 
 #[test]
+fn test_init_with_type_cpp() {
+    let temp = TempDir::new().unwrap();
+    let project_dir = temp.path().join("my-ext");
+
+    echidna()
+        .args([
+            "init",
+            "--type",
+            "cpp",
+            "--name",
+            "my-ext",
+            project_dir.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("type: C++ extension"));
+
+    // Verify C++ extension-specific files
+    // For C++ bundles, files are in src/chimerax/<package>/
+    assert!(project_dir.join("pyproject.toml").exists());
+    assert!(project_dir.join("src/chimerax/myext/__init__.py").exists());
+    assert!(project_dir.join("src/chimerax/myext/cmd.py").exists());
+    assert!(project_dir
+        .join("src/chimerax/myext/_extension.cpp")
+        .exists());
+
+    // Verify pyproject.toml contains extension configuration
+    let pyproject = fs::read_to_string(project_dir.join("pyproject.toml")).unwrap();
+    assert!(pyproject.contains("[chimerax.extension._myext]"));
+    assert!(pyproject.contains("pure = false"));
+}
+
+#[test]
 fn test_init_with_invalid_type() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("invalid");

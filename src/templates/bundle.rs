@@ -21,6 +21,8 @@ pub enum BundleType {
     Selector,
     /// Visualization presets
     Preset,
+    /// C/C++ extension bundle
+    Cpp,
 }
 
 impl BundleType {
@@ -34,6 +36,7 @@ impl BundleType {
             "fetch" => Some(Self::Fetch),
             "selector" => Some(Self::Selector),
             "preset" => Some(Self::Preset),
+            "cpp" | "c++" => Some(Self::Cpp),
             _ => None,
         }
     }
@@ -48,6 +51,7 @@ impl BundleType {
             Self::Fetch => "fetch",
             Self::Selector => "selector",
             Self::Preset => "preset",
+            Self::Cpp => "C++ extension",
         }
     }
 }
@@ -90,6 +94,12 @@ const SELECTOR_PY_TEMPLATE: &str = include_str!("../../templates/selector/select
 const PRESET_PYPROJECT_TEMPLATE: &str = include_str!("../../templates/preset/pyproject.toml.tmpl");
 const PRESET_INIT_TEMPLATE: &str = include_str!("../../templates/preset/init_py.tmpl");
 const PRESET_PY_TEMPLATE: &str = include_str!("../../templates/preset/preset_py.tmpl");
+
+// C++ extension templates
+const CPP_PYPROJECT_TEMPLATE: &str = include_str!("../../templates/cpp/pyproject.toml.tmpl");
+const CPP_INIT_TEMPLATE: &str = include_str!("../../templates/cpp/init_py.tmpl");
+const CPP_CMD_TEMPLATE: &str = include_str!("../../templates/cpp/cmd_py.tmpl");
+const CPP_EXTENSION_TEMPLATE: &str = include_str!("../../templates/cpp/extension_cpp.tmpl");
 
 /// Bundle template with computed names.
 #[derive(Debug, Clone)]
@@ -317,6 +327,33 @@ impl BundleTemplate {
                     &mut created_files,
                 )?;
             }
+            BundleType::Cpp => {
+                // For C++ bundles, we need to put source in src/chimerax/<package>/
+                // because that's where pyproject.toml expects it
+                let cpp_src_dir = src_dir.join("chimerax").join(&self.package_dir);
+                std::fs::create_dir_all(&cpp_src_dir)?;
+
+                self.write_file(
+                    &target_dir.join("pyproject.toml"),
+                    CPP_PYPROJECT_TEMPLATE,
+                    &mut created_files,
+                )?;
+                self.write_file(
+                    &cpp_src_dir.join("__init__.py"),
+                    CPP_INIT_TEMPLATE,
+                    &mut created_files,
+                )?;
+                self.write_file(
+                    &cpp_src_dir.join("cmd.py"),
+                    CPP_CMD_TEMPLATE,
+                    &mut created_files,
+                )?;
+                self.write_file(
+                    &cpp_src_dir.join("_extension.cpp"),
+                    CPP_EXTENSION_TEMPLATE,
+                    &mut created_files,
+                )?;
+            }
         }
 
         Ok(created_files)
@@ -339,6 +376,8 @@ impl BundleTemplate {
     fn render_template(&self, template: &str) -> String {
         // Create PascalCase version for class names
         let pascal_case = to_pascal_case(&self.command_name);
+        // Create PascalCase from the capitalized bundle name (MyTool from ChimeraX-MyTool)
+        let pascal_name = capitalize_words(&self.command_name.replace('_', "-"));
 
         template
             .replace("{{bundle_name}}", &self.bundle_name)
@@ -346,6 +385,7 @@ impl BundleTemplate {
             .replace("{{package_dir}}", &self.package_dir)
             .replace("{{command_name}}", &self.command_name)
             .replace("{{command_name_pascal}}", &pascal_case)
+            .replace("{{pascal_name}}", &pascal_name)
             .replace("{{tool_name}}", &self.tool_name)
             .replace("{{version}}", &self.version)
             .replace("{{description}}", &self.description)
@@ -562,6 +602,8 @@ mod tests {
         assert_eq!(BundleType::parse("fetch"), Some(BundleType::Fetch));
         assert_eq!(BundleType::parse("selector"), Some(BundleType::Selector));
         assert_eq!(BundleType::parse("preset"), Some(BundleType::Preset));
+        assert_eq!(BundleType::parse("cpp"), Some(BundleType::Cpp));
+        assert_eq!(BundleType::parse("c++"), Some(BundleType::Cpp));
         assert_eq!(BundleType::parse("COMMAND"), Some(BundleType::Command));
         assert_eq!(BundleType::parse("invalid"), None);
     }
@@ -575,6 +617,7 @@ mod tests {
         assert_eq!(BundleType::Fetch.display_name(), "fetch");
         assert_eq!(BundleType::Selector.display_name(), "selector");
         assert_eq!(BundleType::Preset.display_name(), "preset");
+        assert_eq!(BundleType::Cpp.display_name(), "C++ extension");
     }
 
     #[test]
@@ -642,5 +685,49 @@ mod tests {
         let input = "Tool: {{tool_name}}";
         let output = template.render_template(input);
         assert_eq!(output, "Tool: My Tool");
+    }
+
+    #[test]
+    fn test_generate_cpp_creates_files() {
+        let temp = TempDir::new().unwrap();
+        let template = BundleTemplate::with_type("test-cpp", BundleType::Cpp).unwrap();
+
+        let created = template.generate(temp.path()).unwrap();
+
+        // C++ templates go in src/chimerax/<package>/
+        assert!(temp.path().join("pyproject.toml").exists());
+        assert!(temp
+            .path()
+            .join("src/chimerax/testcpp/__init__.py")
+            .exists());
+        assert!(temp.path().join("src/chimerax/testcpp/cmd.py").exists());
+        assert!(temp
+            .path()
+            .join("src/chimerax/testcpp/_extension.cpp")
+            .exists());
+        assert!(temp.path().join("scripts/smoke.cxc").exists());
+        assert!(temp.path().join("README.md").exists());
+        assert_eq!(created.len(), 6);
+    }
+
+    #[test]
+    fn test_cpp_pyproject_contains_extension() {
+        let temp = TempDir::new().unwrap();
+        let template = BundleTemplate::with_type("my-ext", BundleType::Cpp).unwrap();
+
+        template.generate(temp.path()).unwrap();
+
+        let content = std::fs::read_to_string(temp.path().join("pyproject.toml")).unwrap();
+        assert!(content.contains("[chimerax.extension._myext]"));
+        assert!(content.contains("pure = false"));
+        assert!(content.contains("language = \"c++\""));
+    }
+
+    #[test]
+    fn test_render_pascal_name() {
+        let template = BundleTemplate::new("my-tool").unwrap();
+        let input = "class _{{pascal_name}}API:";
+        let output = template.render_template(input);
+        assert_eq!(output, "class _MyToolAPI:");
     }
 }
