@@ -50,6 +50,8 @@ jobs:
 
   build-release:
     name: Build Release (${{ matrix.target }})
+    # Only run release builds on main/master pushes, skip on PRs
+    if: github.event_name == 'push'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
