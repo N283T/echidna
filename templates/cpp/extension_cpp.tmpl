@@ -1,0 +1,74 @@
+/**
+ * {{bundle_name}} C++ extension module.
+ *
+ * This is a minimal C++ extension template that demonstrates:
+ * - Python module initialization
+ * - A simple function callable from Python
+ *
+ * For more complex extensions, see the ChimeraX developer documentation:
+ * https://www.cgl.ucsf.edu/chimerax/docs/devel/
+ */
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
+/**
+ * Example compute function.
+ *
+ * @param count Number of iterations.
+ * @return The sum of iterations (0 + 1 + 2 + ... + count-1).
+ */
+static long long compute_impl(int count) {
+    long long result = 0;
+    for (int i = 0; i < count; i++) {
+        result += i;
+    }
+    return result;
+}
+
+/**
+ * Python wrapper for compute_impl.
+ */
+static PyObject* compute(PyObject* self, PyObject* args) {
+    int count;
+
+    if (!PyArg_ParseTuple(args, "i", &count)) {
+        return NULL;
+    }
+
+    if (count < 0) {
+        PyErr_SetString(PyExc_ValueError, "count must be non-negative");
+        return NULL;
+    }
+
+    long long result = compute_impl(count);
+    return PyLong_FromLongLong(result);
+}
+
+/**
+ * Module method table.
+ */
+static PyMethodDef methods[] = {
+    {"compute", compute, METH_VARARGS,
+     "Compute the sum of iterations from 0 to count-1."},
+    {NULL, NULL, 0, NULL}  // Sentinel
+};
+
+/**
+ * Module definition.
+ */
+static struct PyModuleDef module_def = {
+    PyModuleDef_HEAD_INIT,
+    "_{{package_dir}}",     // Module name
+    "{{description}}",      // Module docstring
+    -1,                     // Module keeps state in global variables
+    methods
+};
+
+/**
+ * Module initialization function.
+ * Called when the module is imported.
+ */
+PyMODINIT_FUNC PyInit__{{package_dir}}(void) {
+    return PyModule_Create(&module_def);
+}
