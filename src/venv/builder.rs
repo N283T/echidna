@@ -110,17 +110,30 @@ impl VenvBuilder {
     }
 
     /// Create Scripts/ directory with links (Windows).
+    /// Tries symlink first (works with admin or Developer Mode), then hard link,
+    /// then falls back to copying (for cross-volume scenarios).
     #[cfg(windows)]
     fn create_windows_links(&self) -> Result<()> {
+        use std::os::windows::fs::symlink_file;
+
         let scripts_dir = self.output_dir.join("Scripts");
         fs::create_dir_all(&scripts_dir)?;
 
         let python_path = Path::new(&self.python_info.executable);
-
-        // On Windows, use hard links since symlinks require admin privileges
         let python_link = scripts_dir.join("python.exe");
-        fs::hard_link(python_path, &python_link)?;
 
+        // Try symlink first (works with admin privileges or Developer Mode)
+        if symlink_file(python_path, &python_link).is_ok() {
+            return Ok(());
+        }
+
+        // Fall back to hard link (only works on same volume)
+        if fs::hard_link(python_path, &python_link).is_ok() {
+            return Ok(());
+        }
+
+        // Final fallback: copy the file (works cross-volume)
+        fs::copy(python_path, &python_link)?;
         Ok(())
     }
 
