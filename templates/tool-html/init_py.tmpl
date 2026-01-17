@@ -1,0 +1,19 @@
+"""{{bundle_name}} - {{description}}"""
+
+from chimerax.core.toolshed import BundleAPI
+
+
+class _{{command_name_pascal}}API(BundleAPI):
+    """Bundle API for {{bundle_name}}."""
+
+    api_version = 1
+
+    @staticmethod
+    def start_tool(session, bundle_info, tool_info):
+        """Start the {{tool_name}} tool."""
+        from .tool import {{command_name_pascal}}Tool
+
+        return {{command_name_pascal}}Tool(session, tool_info.name)
+
+
+bundle_api = _{{command_name_pascal}}API()

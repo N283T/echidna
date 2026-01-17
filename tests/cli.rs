@@ -46,6 +46,7 @@ fn test_init_help() {
             "Generate a new ChimeraX bundle project",
         ))
         .stdout(predicate::str::contains("--name"))
+        .stdout(predicate::str::contains("--type"))
         .stdout(predicate::str::contains("--force"));
 }
 

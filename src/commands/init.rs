@@ -1,12 +1,13 @@
 //! `echidna init` command implementation.
 
 use crate::error::{EchidnaError, Result};
-use crate::templates::BundleTemplate;
+use crate::templates::{BundleTemplate, BundleType};
 use std::path::Path;
 
 /// Arguments for the init command.
 pub struct InitArgs {
     pub name: Option<String>,
+    pub bundle_type: String,
     pub bundle_name: Option<String>,
     pub package: Option<String>,
     pub path: std::path::PathBuf,
@@ -16,6 +17,14 @@ pub struct InitArgs {
 /// Execute the init command.
 pub fn execute(args: InitArgs) -> Result<()> {
     let target_dir = &args.path;
+
+    // Parse bundle type
+    let bundle_type = BundleType::parse(&args.bundle_type).ok_or_else(|| {
+        EchidnaError::InvalidName(format!(
+            "invalid bundle type '{}'. Valid types: command, tool, tool-html, format, fetch, selector, preset",
+            args.bundle_type
+        ))
+    })?;
 
     // Determine the project name
     let name = match args.name {
@@ -32,8 +41,8 @@ pub fn execute(args: InitArgs) -> Result<()> {
         }
     };
 
-    // Create template
-    let mut template = BundleTemplate::new(&name)?;
+    // Create template with specified type
+    let mut template = BundleTemplate::with_type(&name, bundle_type)?;
 
     // Override with explicit values if provided
     if let Some(bundle_name) = args.bundle_name {
@@ -63,7 +72,11 @@ pub fn execute(args: InitArgs) -> Result<()> {
     let created_files = template.generate(target_dir)?;
 
     // Print summary
-    println!("Created ChimeraX bundle project: {}", template.bundle_name);
+    println!(
+        "Created ChimeraX bundle project: {} (type: {})",
+        template.bundle_name,
+        template.bundle_type.display_name()
+    );
     println!();
     println!("Generated files:");
     for file in &created_files {

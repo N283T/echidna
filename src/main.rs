@@ -37,6 +37,10 @@ enum Command {
         #[arg(short, long)]
         name: Option<String>,
 
+        /// Bundle type (command, tool, tool-html, format, fetch, selector, preset)
+        #[arg(short = 't', long = "type", default_value = "command")]
+        bundle_type: String,
+
         /// Bundle name (e.g., "ChimeraX-MyTool")
         #[arg(long)]
         bundle_name: Option<String>,
@@ -250,12 +254,14 @@ fn run_cli() -> Result<()> {
     match cli.command {
         Command::Init {
             name,
+            bundle_type,
             bundle_name,
             package,
             path,
             force,
         } => init::execute(init::InitArgs {
             name,
+            bundle_type,
             bundle_name,
             package,
             path,

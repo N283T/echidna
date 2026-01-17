@@ -1,0 +1,19 @@
+"""{{bundle_name}} - {{description}}"""
+
+from chimerax.core.toolshed import BundleAPI
+
+
+class _{{command_name_pascal}}API(BundleAPI):
+    """Bundle API for {{bundle_name}}."""
+
+    api_version = 1
+
+    @staticmethod
+    def register_selector(bundle_info, selector_info, logger):
+        """Register the '{{command_name}}' selector."""
+        from .selector import register_{{command_name}}_selector
+
+        register_{{command_name}}_selector(logger)
+
+
+bundle_api = _{{command_name_pascal}}API()
