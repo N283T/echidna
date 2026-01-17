@@ -75,5 +75,6 @@ pub fn find_newest_wheel(dist_dir: &Path) -> Result<PathBuf> {
         b_time.cmp(&a_time)
     });
 
-    Ok(wheels.remove(0))
+    // Use into_iter().next() instead of remove(0) for safety
+    wheels.into_iter().next().ok_or(EchidnaError::NoWheelFound)
 }
