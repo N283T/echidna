@@ -19,6 +19,8 @@ pub struct TestArgs {
     pub no_build: bool,
     /// Skip install step
     pub no_install: bool,
+    /// Generate coverage report
+    pub coverage: bool,
     /// Additional pytest arguments
     pub pytest_args: Vec<String>,
     /// Path to ChimeraX executable
@@ -84,6 +86,9 @@ pub fn execute(args: TestArgs) -> Result<()> {
     }
 
     println!("=== Running Tests ===");
+    if args.coverage {
+        println!("  (coverage enabled)");
+    }
 
     let executor = ChimeraXExecutor::new(args.chimerax, args.verbosity);
 
@@ -92,6 +97,19 @@ pub fn execute(args: TestArgs) -> Result<()> {
 
     if args.verbose {
         pytest_args.push("-v".to_string());
+    }
+
+    // Add coverage arguments
+    if args.coverage {
+        // Get the package name from pyproject.toml for coverage source
+        let package_name = get_package_name(&project_dir);
+        if let Some(pkg) = package_name {
+            pytest_args.push(format!("\"--cov={}\"", pkg));
+        } else {
+            pytest_args.push("\"--cov=src\"".to_string());
+        }
+        pytest_args.push("\"--cov-report=term-missing\"".to_string());
+        pytest_args.push("\"--cov-report=html:htmlcov\"".to_string());
     }
 
     if let Some(filter) = &args.filter {
@@ -119,6 +137,20 @@ pub fn execute(args: TestArgs) -> Result<()> {
     let pytest_args_str = pytest_args.join(", ");
 
     // Run pytest via ChimeraX Python
+    let coverage_check = if args.coverage {
+        r#"
+# Check for pytest-cov
+try:
+    import pytest_cov
+except ImportError:
+    print("ERROR: pytest-cov is not installed in ChimeraX Python environment")
+    print("Install it with: ChimeraX -m pip install pytest-cov")
+    sys.exit(1)
+"#
+    } else {
+        ""
+    };
+
     let python_code = format!(
         r#"
 import sys
@@ -134,12 +166,13 @@ except ImportError:
     print("ERROR: pytest is not installed in ChimeraX Python environment")
     print("Install it with: ChimeraX -m pip install pytest")
     sys.exit(1)
-
+{coverage_check}
 # Run pytest
 exit_code = pytest.main([{pytest_args}])
 sys.exit(exit_code)
 "#,
         project_dir = project_dir.display(),
+        coverage_check = coverage_check,
         pytest_args = pytest_args_str
     );
 
@@ -163,11 +196,29 @@ sys.exit(exit_code)
     if output.status.success() {
         println!();
         println!("All tests passed!");
+        if args.coverage {
+            println!();
+            println!("Coverage report generated:");
+            println!("  HTML: {}/htmlcov/index.html", project_dir.display());
+        }
         Ok(())
     } else {
         let exit_code = output.status.code().unwrap_or(-1);
         Err(EchidnaError::TestFailed(exit_code))
     }
+}
+
+/// Get the package name from pyproject.toml for coverage.
+fn get_package_name(project_dir: &std::path::Path) -> Option<String> {
+    let pyproject_path = project_dir.join("pyproject.toml");
+    let content = std::fs::read_to_string(pyproject_path).ok()?;
+    let pyproject: toml::Value = toml::from_str(&content).ok()?;
+
+    pyproject
+        .get("chimerax")?
+        .get("package")?
+        .as_str()
+        .map(|s| s.to_string())
 }
 
 /// Validate pytest filter expression to prevent injection.
@@ -255,5 +306,30 @@ mod tests {
             errors: 0,
         };
         assert_eq!(result.total(), 8);
+    }
+
+    #[test]
+    fn test_get_package_name() {
+        use std::fs;
+        use tempfile::TempDir;
+
+        let temp = TempDir::new().unwrap();
+        let pyproject = r#"
+[chimerax]
+package = "chimerax.mytest"
+"#;
+        fs::write(temp.path().join("pyproject.toml"), pyproject).unwrap();
+
+        let pkg = get_package_name(temp.path());
+        assert_eq!(pkg, Some("chimerax.mytest".to_string()));
+    }
+
+    #[test]
+    fn test_get_package_name_missing() {
+        use tempfile::TempDir;
+
+        let temp = TempDir::new().unwrap();
+        let pkg = get_package_name(temp.path());
+        assert_eq!(pkg, None);
     }
 }

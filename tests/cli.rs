@@ -252,5 +252,6 @@ fn test_test_help() {
         ))
         .stdout(predicate::str::contains("--filter"))
         .stdout(predicate::str::contains("--no-build"))
-        .stdout(predicate::str::contains("--no-install"));
+        .stdout(predicate::str::contains("--no-install"))
+        .stdout(predicate::str::contains("--coverage"));
 }
