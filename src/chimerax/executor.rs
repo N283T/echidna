@@ -10,7 +10,12 @@ fn validate_path_for_command(path: &Path) -> Result<()> {
     let path_str = path.to_string_lossy();
 
     // Characters that could cause issues in ChimeraX command strings
+    // Note: Backslash is excluded on Windows since it's the native path separator
+    #[cfg(unix)]
     const DANGEROUS_CHARS: &[char] = &['"', '\'', ';', '\n', '\r', '`', '$', '\\'];
+
+    #[cfg(windows)]
+    const DANGEROUS_CHARS: &[char] = &['"', '\'', ';', '\n', '\r', '`', '$'];
 
     for ch in DANGEROUS_CHARS {
         if path_str.contains(*ch) {
