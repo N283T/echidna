@@ -4,7 +4,7 @@ use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
 use echidna::commands::{
-    build, clean, info, init, install, python, run, setup_ide, testing, validate,
+    build, clean, docs, info, init, install, python, run, setup_ide, testing, validate,
 };
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
@@ -199,6 +199,21 @@ enum Command {
         #[arg(value_enum)]
         shell: Shell,
     },
+
+    /// Open ChimeraX documentation
+    Docs {
+        /// Open developer documentation
+        #[arg(long)]
+        dev: bool,
+
+        /// Open API reference
+        #[arg(long)]
+        api: bool,
+
+        /// Search query
+        #[arg(short, long)]
+        search: Option<String>,
+    },
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -356,5 +371,11 @@ fn run_cli() -> Result<()> {
             generate(shell, &mut cmd, "echidna", &mut io::stdout());
             Ok(())
         }
+
+        Command::Docs { dev, api, search } => docs::execute(docs::DocsArgs {
+            dev,
+            api,
+            query: search,
+        }),
     }
 }
