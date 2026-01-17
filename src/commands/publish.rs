@@ -2,6 +2,7 @@
 //!
 //! Validates and guides bundle submission to ChimeraX Toolshed.
 
+use crate::commands::build::find_newest_wheel;
 use crate::commands::validate::{validate_bundle, ValidationResult};
 use crate::error::{EchidnaError, Result};
 use std::path::{Path, PathBuf};
@@ -166,25 +167,7 @@ fn check_readme_file(project_dir: &Path) -> bool {
 /// Find the most recent wheel file in dist/.
 fn find_wheel(project_dir: &Path) -> Option<PathBuf> {
     let dist_dir = project_dir.join("dist");
-    if !dist_dir.exists() {
-        return None;
-    }
-
-    let mut wheels: Vec<_> = std::fs::read_dir(&dist_dir)
-        .ok()?
-        .filter_map(|e| e.ok())
-        .map(|e| e.path())
-        .filter(|p| p.extension().is_some_and(|ext| ext == "whl"))
-        .collect();
-
-    // Sort by modification time (most recent first)
-    wheels.sort_by(|a, b| {
-        let a_time = a.metadata().and_then(|m| m.modified()).ok();
-        let b_time = b.metadata().and_then(|m| m.modified()).ok();
-        b_time.cmp(&a_time)
-    });
-
-    wheels.into_iter().next()
+    find_newest_wheel(&dist_dir).ok()
 }
 
 #[cfg(test)]
