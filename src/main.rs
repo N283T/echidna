@@ -5,10 +5,11 @@ use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
 use echidna::commands::{
     build, clean, debug, docs, info, init, install, publish, python, run, setup_ide, testing,
-    validate, version, watch,
+    validate, version, watch, workspace,
 };
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
+use echidna::workspace::Workspace;
 use std::io;
 use std::path::PathBuf;
 
@@ -68,6 +69,10 @@ enum Command {
         /// Clean build directory before building
         #[arg(long)]
         clean: bool,
+
+        /// Build all bundles in workspace
+        #[arg(long)]
+        all: bool,
     },
 
     /// Install the bundle to ChimeraX
@@ -197,6 +202,10 @@ enum Command {
         #[arg(long)]
         coverage: bool,
 
+        /// Test all bundles in workspace
+        #[arg(long)]
+        all: bool,
+
         /// Additional arguments passed to pytest
         #[arg(last = true)]
         pytest_args: Vec<String>,
@@ -283,6 +292,32 @@ enum Command {
         #[arg(long)]
         no_install: bool,
     },
+
+    /// Manage bundle workspaces (multiple bundles)
+    #[command(subcommand)]
+    Workspace(WorkspaceCommand),
+}
+
+/// Workspace subcommands.
+#[derive(Subcommand)]
+enum WorkspaceCommand {
+    /// Initialize a workspace in the current directory
+    Init {
+        /// Directory to initialize as workspace
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Force overwrite existing workspace.toml
+        #[arg(short, long)]
+        force: bool,
+    },
+
+    /// List workspace members
+    List {
+        /// Directory to search for workspace
+        #[arg(default_value = ".")]
+        path: PathBuf,
+    },
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -352,12 +387,45 @@ fn run_cli() -> Result<()> {
             force,
         }),
 
-        Command::Build { path, clean } => build::execute(build::BuildArgs {
-            path,
-            clean,
-            chimerax: chimerax_path()?,
-            verbosity,
-        }),
+        Command::Build { path, clean, all } => {
+            if all {
+                // Build all bundles in workspace
+                let path = path.canonicalize().unwrap_or(path.clone());
+                match Workspace::load_from_path(&path)? {
+                    Some((root, ws)) => {
+                        let members = ws.member_paths(&root);
+                        if members.is_empty() {
+                            return Err(EchidnaError::ConfigError(
+                                "Workspace has no members".into(),
+                            ));
+                        }
+                        println!("Building {} bundles in workspace...\n", members.len());
+                        let chimerax = chimerax_path()?;
+                        for member in members {
+                            println!("=== {} ===", member.display());
+                            build::execute(build::BuildArgs {
+                                path: member,
+                                clean,
+                                chimerax: chimerax.clone(),
+                                verbosity,
+                            })?;
+                            println!();
+                        }
+                        Ok(())
+                    }
+                    None => Err(EchidnaError::ConfigError(
+                        "No workspace found. Use 'echidna workspace init' to create one.".into(),
+                    )),
+                }
+            } else {
+                build::execute(build::BuildArgs {
+                    path,
+                    clean,
+                    chimerax: chimerax_path()?,
+                    verbosity,
+                })
+            }
+        }
 
         Command::Install { path, wheel, user } => install::execute(install::InstallArgs {
             path,
@@ -426,18 +494,67 @@ fn run_cli() -> Result<()> {
             no_build,
             no_install,
             coverage,
+            all,
             pytest_args,
-        } => testing::execute(testing::TestArgs {
-            path,
-            filter,
-            verbose,
-            no_build,
-            no_install,
-            coverage,
-            pytest_args,
-            chimerax: chimerax_path()?,
-            verbosity,
-        }),
+        } => {
+            if all {
+                // Test all bundles in workspace
+                let path = path.canonicalize().unwrap_or(path.clone());
+                match Workspace::load_from_path(&path)? {
+                    Some((root, ws)) => {
+                        let members = ws.member_paths(&root);
+                        if members.is_empty() {
+                            return Err(EchidnaError::ConfigError(
+                                "Workspace has no members".into(),
+                            ));
+                        }
+                        println!("Testing {} bundles in workspace...\n", members.len());
+                        let chimerax = chimerax_path()?;
+                        let mut all_passed = true;
+                        for member in &members {
+                            println!("=== {} ===", member.display());
+                            let result = testing::execute(testing::TestArgs {
+                                path: member.clone(),
+                                filter: filter.clone(),
+                                verbose,
+                                no_build,
+                                no_install,
+                                coverage,
+                                pytest_args: pytest_args.clone(),
+                                chimerax: chimerax.clone(),
+                                verbosity,
+                            });
+                            if result.is_err() {
+                                all_passed = false;
+                                eprintln!("Tests failed for {}", member.display());
+                            }
+                            println!();
+                        }
+                        if all_passed {
+                            println!("All {} bundles passed tests.", members.len());
+                            Ok(())
+                        } else {
+                            Err(EchidnaError::TestFailed(1))
+                        }
+                    }
+                    None => Err(EchidnaError::ConfigError(
+                        "No workspace found. Use 'echidna workspace init' to create one.".into(),
+                    )),
+                }
+            } else {
+                testing::execute(testing::TestArgs {
+                    path,
+                    filter,
+                    verbose,
+                    no_build,
+                    no_install,
+                    coverage,
+                    pytest_args,
+                    chimerax: chimerax_path()?,
+                    verbosity,
+                })
+            }
+        }
 
         Command::Completions { shell } => {
             let mut cmd = Cli::command();
@@ -486,6 +603,15 @@ fn run_cli() -> Result<()> {
             chimerax: chimerax_path()?,
             verbosity,
         }),
+
+        Command::Workspace(cmd) => match cmd {
+            WorkspaceCommand::Init { path, force } => {
+                workspace::init(workspace::WorkspaceInitArgs { path, force })
+            }
+            WorkspaceCommand::List { path } => {
+                workspace::list(workspace::WorkspaceListArgs { path })
+            }
+        },
     }
 }
 
