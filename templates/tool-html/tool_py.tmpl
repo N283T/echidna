@@ -1,0 +1,82 @@
+"""HTML-based tool implementation for {{bundle_name}}."""
+
+from chimerax.core.tools import ToolInstance
+from chimerax.ui.gui import MainToolWindow
+from chimerax.ui.widgets import HtmlView
+
+CUSTOM_SCHEME = "{{command_name}}"
+
+
+class {{command_name_pascal}}Tool(ToolInstance):
+    """An HTML-based tool panel for {{bundle_name}}."""
+
+    SESSION_ENDURING = False
+    SESSION_SAVE = True
+    help = "help:user/tools/{{command_name}}.html"
+
+    def __init__(self, session, tool_name):
+        super().__init__(session, tool_name)
+
+        self.tool_window = MainToolWindow(self)
+        self._build_ui()
+        self.tool_window.manage("side")
+
+    def _build_ui(self):
+        """Build the tool's HTML-based user interface."""
+        parent = self.tool_window.ui_area
+
+        self.html_view = HtmlView(
+            parent,
+            size_hint=(400, 300),
+            interceptor=self._handle_scheme,
+            schemes=[CUSTOM_SCHEME],
+        )
+
+        html_content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: sans-serif; padding: 20px; }
+                button { padding: 10px 20px; margin: 5px; }
+            </style>
+        </head>
+        <body>
+            <h1>{{tool_name}}</h1>
+            <p>Hello from {{bundle_name}}!</p>
+            <button onclick="location.href='{{command_name}}:hello'">Say Hello</button>
+        </body>
+        </html>
+        """
+        self.html_view.setHtml(html_content)
+        parent.setWidget(self.html_view)
+
+    def _handle_scheme(self, url):
+        """Handle custom scheme requests from the HTML content."""
+        action = url.path()
+
+        if action == "hello":
+            self.session.logger.info("Hello from {{bundle_name}}!")
+        else:
+            self.session.logger.warning(f"Unknown action: {action}")
+
+    def delete(self):
+        """Clean up when the tool is closed."""
+        super().delete()
+
+    @classmethod
+    def get_singleton(cls, session, create=True):
+        """Get or create the singleton instance of this tool."""
+        from chimerax.core import tools
+
+        return tools.get_singleton(session, cls, "{{tool_name}}", create=create)
+
+    @staticmethod
+    def take_snapshot(session, flags):
+        """Save tool state for session saving."""
+        return {"version": 1}
+
+    @classmethod
+    def restore_snapshot(cls, session, data):
+        """Restore tool from saved session."""
+        return cls.get_singleton(session)

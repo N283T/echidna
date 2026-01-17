@@ -2,4 +2,4 @@
 
 mod bundle;
 
-pub use bundle::BundleTemplate;
+pub use bundle::{BundleTemplate, BundleType};

@@ -1,0 +1,55 @@
+"""Network fetcher for {{bundle_name}}."""
+
+from chimerax.open_command import FetcherInfo
+
+
+class {{command_name_pascal}}Fetcher(FetcherInfo):
+    """Fetcher for {{command_name}} database entries."""
+
+    # Base URL for the database
+    BASE_URL = "https://example.com/api"
+
+    def fetch(self, session, ident, format_name, ignore_cache, **kw):
+        """Fetch a database entry by identifier.
+
+        Parameters
+        ----------
+        session : chimerax.core.session.Session
+            The ChimeraX session.
+        ident : str
+            The database identifier to fetch.
+        format_name : str
+            The format name (usually the provider name).
+        ignore_cache : bool
+            Whether to ignore cached data.
+
+        Returns
+        -------
+        models : list
+            List of models created from the fetched data.
+        status : str
+            Status message to display.
+        """
+        from chimerax.core.fetch import retrieve_url
+
+        # Construct the URL
+        url = f"{self.BASE_URL}/{ident}"
+
+        # Fetch the data
+        session.logger.info(f"Fetching {ident} from {url}")
+
+        try:
+            file_name, headers = retrieve_url(
+                session,
+                url,
+                save_name=f"{ident}.txt",
+                ignore_cache=ignore_cache,
+            )
+        except Exception as e:
+            session.logger.error(f"Failed to fetch {ident}: {e}")
+            return [], f"Failed to fetch {ident}"
+
+        # TODO: Parse the fetched data and create models
+        session.logger.info(f"Fetched {ident}: {file_name}")
+
+        return [], f"Fetched {ident}"

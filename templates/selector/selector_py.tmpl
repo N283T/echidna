@@ -1,0 +1,45 @@
+"""Selector implementation for {{bundle_name}}."""
+
+from chimerax.core.commands import register_selector
+
+
+def {{command_name}}_selector(session, models, results):
+    """Select atoms matching the {{command_name}} criteria.
+
+    Parameters
+    ----------
+    session : chimerax.core.session.Session
+        The ChimeraX session.
+    models : list
+        List of models to search.
+    results : chimerax.core.objects.Objects
+        Results object to add selected atoms to.
+
+    Example
+    -------
+    In ChimeraX command line:
+        select {{command_name}}
+    """
+    from chimerax.atomic import all_atoms
+
+    # Get all atoms from the models
+    atoms = all_atoms(session, models)
+
+    # TODO: Implement your selection criteria
+    # Example: select atoms with a specific element
+    # selected = atoms.filter(atoms.element_names == "C")
+
+    # For now, select all atoms as a placeholder
+    selected = atoms
+
+    results.add_atoms(selected)
+
+
+def register_{{command_name}}_selector(logger):
+    """Register the {{command_name}} selector."""
+    register_selector(
+        "{{command_name}}",
+        {{command_name}}_selector,
+        logger,
+        synopsis="{{description}}",
+    )

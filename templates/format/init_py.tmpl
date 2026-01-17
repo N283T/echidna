@@ -1,0 +1,25 @@
+"""{{bundle_name}} - {{description}}"""
+
+from chimerax.core.toolshed import BundleAPI
+
+
+class _{{command_name_pascal}}API(BundleAPI):
+    """Bundle API for {{bundle_name}}."""
+
+    api_version = 1
+
+    @staticmethod
+    def run_provider(session, name, mgr):
+        """Run the data format provider."""
+        if mgr == session.open_command:
+            from .open import {{command_name_pascal}}Opener
+
+            return {{command_name_pascal}}Opener(session, name)
+        # Uncomment to add save support
+        # elif mgr == session.save_command:
+        #     from .save import {{command_name_pascal}}Saver
+        #     return {{command_name_pascal}}Saver(session, name)
+        return None
+
+
+bundle_api = _{{command_name_pascal}}API()
