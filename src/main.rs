@@ -242,11 +242,11 @@ enum Command {
         path: PathBuf,
 
         /// Also launch ChimeraX after build
-        #[arg(long)]
+        #[arg(long, conflicts_with = "test")]
         run: bool,
 
         /// Run tests on changes
-        #[arg(long)]
+        #[arg(long, conflicts_with = "run")]
         test: bool,
     },
 }
