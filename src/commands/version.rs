@@ -221,7 +221,12 @@ fn update_version_in_file(
     // Write atomically by writing to temp file first
     let temp_path = path.with_extension("toml.tmp");
     fs::write(&temp_path, &new_content)?;
-    fs::rename(&temp_path, path)?;
+
+    // Clean up temp file on rename failure
+    if let Err(e) = fs::rename(&temp_path, path) {
+        let _ = fs::remove_file(&temp_path); // Best effort cleanup
+        return Err(e.into());
+    }
 
     Ok(())
 }
