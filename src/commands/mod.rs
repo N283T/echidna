@@ -15,3 +15,4 @@ pub mod testing;
 pub mod validate;
 pub mod version;
 pub mod watch;
+pub mod workspace;

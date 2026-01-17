@@ -8,6 +8,7 @@ pub mod config;
 pub mod error;
 pub mod templates;
 pub mod venv;
+pub mod workspace;
 
 pub use config::Config;
 pub use error::{EchidnaError, Result};

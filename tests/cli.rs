@@ -27,7 +27,8 @@ fn test_help() {
         .stdout(predicate::str::contains("test"))
         .stdout(predicate::str::contains("watch"))
         .stdout(predicate::str::contains("version"))
-        .stdout(predicate::str::contains("debug"));
+        .stdout(predicate::str::contains("debug"))
+        .stdout(predicate::str::contains("workspace"));
 }
 
 #[test]
@@ -294,4 +295,52 @@ fn test_debug_help() {
         .stdout(predicate::str::contains("--profile"))
         .stdout(predicate::str::contains("--no-build"))
         .stdout(predicate::str::contains("--no-install"));
+}
+
+#[test]
+fn test_workspace_help() {
+    echidna()
+        .args(["workspace", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Manage bundle workspaces"))
+        .stdout(predicate::str::contains("init"))
+        .stdout(predicate::str::contains("list"));
+}
+
+#[test]
+fn test_workspace_init_help() {
+    echidna()
+        .args(["workspace", "init", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Initialize a workspace"))
+        .stdout(predicate::str::contains("--force"));
+}
+
+#[test]
+fn test_workspace_list_help() {
+    echidna()
+        .args(["workspace", "list", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("List workspace members"));
+}
+
+#[test]
+fn test_build_all_flag() {
+    echidna()
+        .args(["build", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--all"));
+}
+
+#[test]
+fn test_test_all_flag() {
+    echidna()
+        .args(["test", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--all"));
 }
