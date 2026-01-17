@@ -5,6 +5,7 @@ use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
 use echidna::commands::{
     build, clean, docs, info, init, install, publish, python, run, setup_ide, testing, validate,
+    watch,
 };
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
@@ -233,6 +234,21 @@ enum Command {
         #[arg(long)]
         dry_run: bool,
     },
+
+    /// Watch for changes and auto-rebuild
+    Watch {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Also launch ChimeraX after build
+        #[arg(long, conflicts_with = "test")]
+        run: bool,
+
+        /// Run tests on changes
+        #[arg(long, conflicts_with = "run")]
+        test: bool,
+    },
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -404,5 +420,13 @@ fn run_cli() -> Result<()> {
         Command::Publish { path, dry_run } => {
             publish::execute(publish::PublishArgs { path, dry_run })
         }
+
+        Command::Watch { path, run, test } => watch::execute(watch::WatchArgs {
+            path,
+            run,
+            test,
+            chimerax: chimerax_path()?,
+            verbosity,
+        }),
     }
 }

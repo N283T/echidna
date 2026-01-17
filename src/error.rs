@@ -47,4 +47,7 @@ pub enum EchidnaError {
 
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
+
+    #[error("File watch error: {0}")]
+    Watch(#[from] notify::Error),
 }

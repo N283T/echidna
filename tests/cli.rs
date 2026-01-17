@@ -24,7 +24,8 @@ fn test_help() {
         .stdout(predicate::str::contains("clean"))
         .stdout(predicate::str::contains("validate"))
         .stdout(predicate::str::contains("info"))
-        .stdout(predicate::str::contains("test"));
+        .stdout(predicate::str::contains("test"))
+        .stdout(predicate::str::contains("watch"));
 }
 
 #[test]
@@ -254,4 +255,17 @@ fn test_test_help() {
         .stdout(predicate::str::contains("--no-build"))
         .stdout(predicate::str::contains("--no-install"))
         .stdout(predicate::str::contains("--coverage"));
+}
+
+#[test]
+fn test_watch_help() {
+    echidna()
+        .args(["watch", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Watch for changes and auto-rebuild",
+        ))
+        .stdout(predicate::str::contains("--run"))
+        .stdout(predicate::str::contains("--test"));
 }
