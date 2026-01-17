@@ -25,7 +25,8 @@ fn test_help() {
         .stdout(predicate::str::contains("validate"))
         .stdout(predicate::str::contains("info"))
         .stdout(predicate::str::contains("test"))
-        .stdout(predicate::str::contains("watch"));
+        .stdout(predicate::str::contains("watch"))
+        .stdout(predicate::str::contains("version"));
 }
 
 #[test]
@@ -268,4 +269,15 @@ fn test_watch_help() {
         ))
         .stdout(predicate::str::contains("--run"))
         .stdout(predicate::str::contains("--test"));
+}
+
+#[test]
+fn test_version_help() {
+    echidna()
+        .args(["version", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Manage bundle version in pyproject.toml",
+        ));
 }

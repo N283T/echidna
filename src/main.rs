@@ -5,7 +5,7 @@ use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
 use echidna::commands::{
     build, clean, docs, info, init, install, publish, python, run, setup_ide, testing, validate,
-    watch,
+    version, watch,
 };
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
@@ -249,6 +249,17 @@ enum Command {
         #[arg(long, conflicts_with = "run")]
         test: bool,
     },
+
+    /// Manage bundle version in pyproject.toml
+    Version {
+        /// Project directory
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Version action: show (default), patch, minor, major, or X.Y.Z
+        #[arg(default_value = "show")]
+        action: String,
+    },
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -428,5 +439,36 @@ fn run_cli() -> Result<()> {
             chimerax: chimerax_path()?,
             verbosity,
         }),
+
+        Command::Version { path, action } => {
+            let version_action = parse_version_action(&action)?;
+            version::execute(version::VersionArgs {
+                path,
+                action: version_action,
+            })
+        }
+    }
+}
+
+/// Parse version action string into VersionAction enum.
+fn parse_version_action(action: &str) -> Result<version::VersionAction> {
+    match action {
+        "show" => Ok(version::VersionAction::Show),
+        "patch" => Ok(version::VersionAction::BumpPatch),
+        "minor" => Ok(version::VersionAction::BumpMinor),
+        "major" => Ok(version::VersionAction::BumpMajor),
+        _ => {
+            // Check if it's a valid version string (X.Y.Z)
+            if action.split('.').count() == 3
+                && action.split('.').all(|part| part.parse::<u32>().is_ok())
+            {
+                Ok(version::VersionAction::Set(action.to_string()))
+            } else {
+                Err(EchidnaError::ConfigError(format!(
+                    "Invalid version action '{}'. Use: show, patch, minor, major, or X.Y.Z",
+                    action
+                )))
+            }
+        }
     }
 }
