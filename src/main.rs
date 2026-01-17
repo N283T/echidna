@@ -9,6 +9,7 @@ use echidna::commands::{
 };
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
+use echidna::templates::BundleType;
 use echidna::workspace::Workspace;
 use std::io;
 use std::path::PathBuf;
@@ -39,9 +40,9 @@ enum Command {
         #[arg(short, long)]
         name: Option<String>,
 
-        /// Bundle type (command, tool, tool-html, format, fetch, selector, preset)
-        #[arg(short = 't', long = "type", default_value = "command")]
-        bundle_type: String,
+        /// Bundle type (command, tool, tool-html, format, fetch, selector, preset, cpp)
+        #[arg(short = 't', long = "type", value_enum, default_value = "command")]
+        bundle_type: BundleType,
 
         /// Bundle name (e.g., "ChimeraX-MyTool")
         #[arg(long)]
