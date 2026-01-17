@@ -226,7 +226,8 @@ fn test_validate_help() {
         .success()
         .stdout(predicate::str::contains(
             "Validate bundle structure and configuration",
-        ));
+        ))
+        .stdout(predicate::str::contains("--strict"));
 }
 
 #[test]
