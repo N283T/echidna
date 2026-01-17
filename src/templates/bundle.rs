@@ -556,10 +556,7 @@ mod tests {
     fn test_bundle_type_from_str() {
         assert_eq!(BundleType::parse("command"), Some(BundleType::Command));
         assert_eq!(BundleType::parse("tool"), Some(BundleType::Tool));
-        assert_eq!(
-            BundleType::parse("tool-html"),
-            Some(BundleType::ToolHtml)
-        );
+        assert_eq!(BundleType::parse("tool-html"), Some(BundleType::ToolHtml));
         assert_eq!(BundleType::parse("toolhtml"), Some(BundleType::ToolHtml));
         assert_eq!(BundleType::parse("format"), Some(BundleType::Format));
         assert_eq!(BundleType::parse("fetch"), Some(BundleType::Fetch));

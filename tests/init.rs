@@ -228,3 +228,91 @@ fn test_init_shows_next_steps() {
         .stdout(predicate::str::contains("echidna install"))
         .stdout(predicate::str::contains("echidna run"));
 }
+
+#[test]
+fn test_init_with_type_tool() {
+    let temp = TempDir::new().unwrap();
+    let project_dir = temp.path().join("my-tool");
+
+    echidna()
+        .args([
+            "init",
+            "--type",
+            "tool",
+            "--name",
+            "my-tool",
+            project_dir.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("type: tool (Qt)"));
+
+    // Verify tool-specific files
+    assert!(project_dir.join("pyproject.toml").exists());
+    assert!(project_dir.join("src/__init__.py").exists());
+    assert!(project_dir.join("src/tool.py").exists());
+
+    // Verify pyproject.toml contains tool configuration
+    let pyproject = fs::read_to_string(project_dir.join("pyproject.toml")).unwrap();
+    assert!(pyproject.contains("[chimerax.tool."));
+}
+
+#[test]
+fn test_init_with_type_format() {
+    let temp = TempDir::new().unwrap();
+    let project_dir = temp.path().join("my-format");
+
+    echidna()
+        .args([
+            "init",
+            "--type",
+            "format",
+            "--name",
+            "my-format",
+            project_dir.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("type: format"));
+
+    // Verify format-specific files
+    assert!(project_dir.join("src/open.py").exists());
+
+    // Verify pyproject.toml contains format configuration
+    let pyproject = fs::read_to_string(project_dir.join("pyproject.toml")).unwrap();
+    assert!(pyproject.contains("[chimerax.data-format."));
+}
+
+#[test]
+fn test_init_with_invalid_type() {
+    let temp = TempDir::new().unwrap();
+    let project_dir = temp.path().join("invalid");
+
+    echidna()
+        .args([
+            "init",
+            "--type",
+            "invalid-type",
+            "--name",
+            "test",
+            project_dir.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("invalid bundle type"));
+}
+
+#[test]
+fn test_init_default_type_is_command() {
+    let temp = TempDir::new().unwrap();
+    let project_dir = temp.path().join("default");
+
+    echidna()
+        .args(["init", "--name", "default", project_dir.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("type: command"));
+
+    // Verify command-specific files
+    assert!(project_dir.join("src/cmd.py").exists());
+}
