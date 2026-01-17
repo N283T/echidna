@@ -192,6 +192,10 @@ enum Command {
         #[arg(long)]
         no_install: bool,
 
+        /// Generate coverage report
+        #[arg(long)]
+        coverage: bool,
+
         /// Additional arguments passed to pytest
         #[arg(last = true)]
         pytest_args: Vec<String>,
@@ -371,6 +375,7 @@ fn run_cli() -> Result<()> {
             verbose,
             no_build,
             no_install,
+            coverage,
             pytest_args,
         } => testing::execute(testing::TestArgs {
             path,
@@ -378,6 +383,7 @@ fn run_cli() -> Result<()> {
             verbose,
             no_build,
             no_install,
+            coverage,
             pytest_args,
             chimerax: chimerax_path()?,
             verbosity,
