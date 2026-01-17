@@ -4,7 +4,7 @@ use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{generate, Shell};
 use echidna::chimerax::find_chimerax;
 use echidna::commands::{
-    build, clean, docs, info, init, install, python, run, setup_ide, testing, validate,
+    build, clean, docs, info, init, install, publish, python, run, setup_ide, testing, validate,
 };
 use echidna::config::Config;
 use echidna::error::{EchidnaError, Result};
@@ -214,6 +214,17 @@ enum Command {
         #[arg(short, long)]
         search: Option<String>,
     },
+
+    /// Publish bundle to ChimeraX Toolshed
+    Publish {
+        /// Project directory or wheel file
+        #[arg(default_value = ".")]
+        path: PathBuf,
+
+        /// Validate without publishing
+        #[arg(long)]
+        dry_run: bool,
+    },
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -377,5 +388,9 @@ fn run_cli() -> Result<()> {
             api,
             query: search,
         }),
+
+        Command::Publish { path, dry_run } => {
+            publish::execute(publish::PublishArgs { path, dry_run })
+        }
     }
 }
