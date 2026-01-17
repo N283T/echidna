@@ -6,6 +6,7 @@ pub mod docs;
 pub mod info;
 pub mod init;
 pub mod install;
+pub mod publish;
 pub mod python;
 pub mod run;
 pub mod setup_ide;

@@ -98,6 +98,30 @@ fn test_python_help() {
 }
 
 #[test]
+fn test_docs_help() {
+    echidna()
+        .args(["docs", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Open ChimeraX documentation"))
+        .stdout(predicate::str::contains("--dev"))
+        .stdout(predicate::str::contains("--api"))
+        .stdout(predicate::str::contains("--search"));
+}
+
+#[test]
+fn test_publish_help() {
+    echidna()
+        .args(["publish", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Publish bundle to ChimeraX Toolshed",
+        ))
+        .stdout(predicate::str::contains("--dry-run"));
+}
+
+#[test]
 fn test_invalid_subcommand() {
     echidna()
         .arg("invalid-subcommand")
