@@ -29,18 +29,25 @@ fn default_paths() -> Vec<PathBuf> {
 
         // Older installers (pre-1.7) used versioned directories like "ChimeraX 1.3"
         if let Ok(entries) = std::fs::read_dir(r"C:\Program Files") {
-            let mut versioned: Vec<PathBuf> = entries
+            let mut versioned: Vec<(Vec<u32>, PathBuf)> = entries
                 .filter_map(|e| e.ok())
-                .filter(|e| {
+                .filter_map(|e| {
                     let name = e.file_name();
                     let name = name.to_string_lossy();
-                    name.starts_with("ChimeraX ") && name != "ChimeraX"
+                    let version_str = name.strip_prefix("ChimeraX ")?;
+                    let parts: Vec<u32> = version_str
+                        .split('.')
+                        .filter_map(|s| s.parse().ok())
+                        .collect();
+                    if parts.is_empty() {
+                        return None;
+                    }
+                    Some((parts, e.path().join(r"bin\ChimeraX-console.exe")))
                 })
-                .map(|e| e.path().join(r"bin\ChimeraX-console.exe"))
                 .collect();
-            // Sort descending so newer versions are tried first
-            versioned.sort_by(|a, b| b.cmp(a));
-            paths.extend(versioned);
+            // Sort by version numbers descending so newer versions are tried first
+            versioned.sort_by(|a, b| b.0.cmp(&a.0));
+            paths.extend(versioned.into_iter().map(|(_, path)| path));
         }
 
         paths
