@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-02-24
+
 ### Added
 - Add Docusaurus documentation site at `website/` (deployed to GitHub Pages)
 - Add GitHub Actions workflow for automatic docs deployment on merge to main
@@ -36,4 +38,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove incomplete --pdb and --profile flags from debug command
 - Clean up 13 stale branches (local and remote)
 
-[Unreleased]: https://github.com/N283T/echidna/commits/main
+[Unreleased]: https://github.com/N283T/echidna/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/N283T/echidna/releases/tag/v0.1.0
