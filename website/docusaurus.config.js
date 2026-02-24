@@ -39,6 +39,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: '/',
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/N283T/echidna/tree/main/website/',
         },
@@ -80,15 +81,15 @@ const config = {
             items: [
               {
                 label: 'Getting Started',
-                to: '/docs/getting-started/installation',
+                to: '/',
               },
               {
                 label: 'Commands',
-                to: '/docs/commands/init',
+                to: '/commands/init',
               },
               {
                 label: 'Configuration',
-                to: '/docs/configuration/echidna-toml',
+                to: '/configuration/echidna-toml',
               },
             ],
           },
@@ -105,7 +106,7 @@ const config = {
               },
               {
                 label: 'Contributing',
-                to: '/docs/contributing',
+                to: '/contributing',
               },
             ],
           },
