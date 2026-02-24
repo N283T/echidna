@@ -5,13 +5,13 @@ use predicates::prelude::*;
 
 /// Get a command to run echidna.
 #[allow(deprecated)]
-fn echidna() -> Command {
-    Command::cargo_bin("echidna").unwrap()
+fn echi() -> Command {
+    Command::cargo_bin("echi").unwrap()
 }
 
 #[test]
 fn test_packages_help() {
-    echidna()
+    echi()
         .args(["packages", "--help"])
         .assert()
         .success()
@@ -23,7 +23,7 @@ fn test_packages_help() {
 
 #[test]
 fn test_packages_list_help() {
-    echidna()
+    echi()
         .args(["packages", "list", "--help"])
         .assert()
         .success()
@@ -34,7 +34,7 @@ fn test_packages_list_help() {
 
 #[test]
 fn test_packages_check_help() {
-    echidna()
+    echi()
         .args(["packages", "check", "--help"])
         .assert()
         .success()
@@ -52,7 +52,7 @@ fn test_packages_check_requires_package_or_requirements() {
         return; // Skip test if ChimeraX not available
     }
 
-    echidna()
+    echi()
         .args(["packages", "check"])
         .assert()
         .failure()
@@ -61,7 +61,7 @@ fn test_packages_check_requires_package_or_requirements() {
 
 #[test]
 fn test_packages_install_help() {
-    echidna()
+    echi()
         .args(["packages", "install", "--help"])
         .assert()
         .success()
@@ -74,7 +74,7 @@ fn test_packages_install_help() {
 #[test]
 fn test_packages_install_requires_packages() {
     // Running install without packages should fail
-    echidna()
+    echi()
         .args(["packages", "install"])
         .assert()
         .failure()
@@ -84,7 +84,7 @@ fn test_packages_install_requires_packages() {
 #[test]
 fn test_packages_without_subcommand() {
     // Running packages without a subcommand should show help or error
-    echidna()
+    echi()
         .args(["packages"])
         .assert()
         .failure()

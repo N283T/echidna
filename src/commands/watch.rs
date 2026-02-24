@@ -163,10 +163,10 @@ fn is_relevant_change(event: &notify::Event, project_dir: &Path) -> bool {
         // Check if path is within watched directories
         if path.strip_prefix(project_dir).is_ok() {
             // Check file extension
-            if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-                if WATCH_EXTENSIONS.contains(&ext) {
-                    return true;
-                }
+            if let Some(ext) = path.extension().and_then(|e| e.to_str())
+                && WATCH_EXTENSIONS.contains(&ext)
+            {
+                return true;
             }
         }
     }
@@ -183,10 +183,10 @@ fn should_ignore_path(path: &Path) -> bool {
                 return true;
             }
             // Also ignore .egg-info directories (suffix match)
-            if let Some(name_str) = name.to_str() {
-                if name_str.ends_with(".egg-info") {
-                    return true;
-                }
+            if let Some(name_str) = name.to_str()
+                && name_str.ends_with(".egg-info")
+            {
+                return true;
             }
         }
         false

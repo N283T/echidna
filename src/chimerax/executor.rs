@@ -233,7 +233,7 @@ print("ECHIDNA_JSON_END")
     fn log_execution(&self, msg: &str) {
         // Level 1+: show commands being executed
         if self.verbosity >= 1 {
-            eprintln!("[echidna] Executing: {}", msg);
+            eprintln!("[echi] Executing: {}", msg);
         }
     }
 
@@ -243,10 +243,10 @@ print("ECHIDNA_JSON_END")
             let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
             if !stdout.is_empty() {
-                eprintln!("[echidna] stdout:\n{}", stdout);
+                eprintln!("[echi] stdout:\n{}", stdout);
             }
             if !stderr.is_empty() {
-                eprintln!("[echidna] stderr:\n{}", stderr);
+                eprintln!("[echi] stderr:\n{}", stderr);
             }
         }
     }

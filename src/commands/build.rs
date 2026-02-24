@@ -20,8 +20,8 @@ pub fn execute(args: BuildArgs) -> Result<()> {
     ui::success("Build successful!");
     ui::hint(&format!("Wheel: {}", wheel.display()));
     ui::next_steps(&[
-        ("echidna install", "Install the bundle to ChimeraX"),
-        ("echidna run", "Build, install, and launch ChimeraX"),
+        ("echi install", "Install the bundle to ChimeraX"),
+        ("echi run", "Build, install, and launch ChimeraX"),
     ]);
 
     Ok(())

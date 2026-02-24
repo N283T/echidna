@@ -5,7 +5,7 @@ use crate::error::{EchidnaError, Result};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
-use super::{validate_package_spec, PackageBackend};
+use super::{PackageBackend, validate_package_spec};
 
 /// Result of an install operation.
 #[derive(Debug)]
@@ -179,13 +179,13 @@ impl PackageInstaller {
 
     fn log_command(&self, cmd: &str) {
         if self.verbosity >= 1 {
-            eprintln!("[echidna] Executing: {}", cmd);
+            eprintln!("[echi] Executing: {}", cmd);
         }
     }
 
     fn log_output(&self, output: &str) {
         if self.verbosity >= 2 {
-            eprintln!("[echidna] Output:\n{}", output);
+            eprintln!("[echi] Output:\n{}", output);
         }
     }
 }

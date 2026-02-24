@@ -1,10 +1,10 @@
 [package]
-name = "echidna"
-version = "0.5.0"
-edition = "2021"
+name = "echi"
+version = "0.0.1"
+edition = "2024"
 description = "ChimeraX Bundle Development CLI"
 license = "MIT"
-repository = "https://github.com/nagaet/echidna"
+repository = "https://github.com/N283T/echidna"
 
 [dependencies]
 clap = { version = "4", features = ["derive", "env"] }

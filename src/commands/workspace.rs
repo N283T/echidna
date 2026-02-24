@@ -1,7 +1,7 @@
 //! `echidna workspace` command implementation.
 
 use crate::error::{EchidnaError, Result};
-use crate::workspace::{Workspace, WORKSPACE_FILE};
+use crate::workspace::{WORKSPACE_FILE, Workspace};
 use std::path::PathBuf;
 
 /// Arguments for the workspace init command.
@@ -53,8 +53,8 @@ pub fn init(args: WorkspaceInitArgs) -> Result<()> {
     println!("Created {}", workspace_file.display());
     println!();
     println!("You can now use:");
-    println!("  echidna build --all    Build all bundles");
-    println!("  echidna test --all     Test all bundles");
+    println!("  echi build --all    Build all bundles");
+    println!("  echi test --all     Test all bundles");
 
     Ok(())
 }
@@ -88,7 +88,7 @@ pub fn list(args: WorkspaceListArgs) -> Result<()> {
             println!("No workspace found.");
             println!();
             println!("To create a workspace, run:");
-            println!("  echidna workspace init");
+            println!("  echi workspace init");
         }
     }
 

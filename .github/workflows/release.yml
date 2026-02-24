@@ -37,7 +37,7 @@ jobs:
       - name: Check CLI --version output
         run: |
           cargo build --release
-          CLI_VERSION=$(./target/release/echidna --version | awk '{print $2}')
+          CLI_VERSION=$(./target/release/echi --version | awk '{print $2}')
           echo "CLI --version: $CLI_VERSION"
           if [ "$CLI_VERSION" != "${{ steps.tag.outputs.version }}" ]; then
             echo "::error::Version mismatch: tag=${{ steps.tag.outputs.version }}, CLI=$CLI_VERSION"
@@ -63,16 +63,16 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact: echidna
+            artifact: echi
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact: echidna
+            artifact: echi
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact: echidna
+            artifact: echi
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact: echidna.exe
+            artifact: echi.exe
     steps:
       - uses: actions/checkout@v6
 
@@ -91,19 +91,19 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          tar -czvf ../../../echidna-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
+          tar -czvf ../../../echi-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
 
       - name: Create archive (Windows)
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../echidna-${{ matrix.target }}.zip ${{ matrix.artifact }}
+          7z a ../../../echi-${{ matrix.target }}.zip ${{ matrix.artifact }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: echidna-${{ matrix.target }}
-          path: echidna-${{ matrix.target }}.*
+          name: echi-${{ matrix.target }}
+          path: echi-${{ matrix.target }}.*
 
   release:
     name: Create Release
@@ -151,7 +151,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: echidna ${{ github.ref_name }}
+          name: echi ${{ github.ref_name }}
           body_path: release_notes.md
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}

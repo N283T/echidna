@@ -7,15 +7,15 @@ use tempfile::TempDir;
 
 /// Get a command to run echidna.
 #[allow(deprecated)]
-fn echidna() -> Command {
-    Command::cargo_bin("echidna").unwrap()
+fn echi() -> Command {
+    Command::cargo_bin("echi").unwrap()
 }
 
 #[test]
 fn test_clean_empty_directory() {
     let temp_dir = TempDir::new().unwrap();
 
-    echidna()
+    echi()
         .args(["clean", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -29,7 +29,7 @@ fn test_clean_removes_build_directory() {
     fs::create_dir(&build_dir).unwrap();
     fs::write(build_dir.join("test.txt"), "test").unwrap();
 
-    echidna()
+    echi()
         .args(["clean", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -46,7 +46,7 @@ fn test_clean_removes_dist_directory() {
     fs::create_dir(&dist_dir).unwrap();
     fs::write(dist_dir.join("test.whl"), "test").unwrap();
 
-    echidna()
+    echi()
         .args(["clean", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -62,7 +62,7 @@ fn test_clean_removes_egg_info() {
     let egg_info = temp_dir.path().join("MyBundle.egg-info");
     fs::create_dir(&egg_info).unwrap();
 
-    echidna()
+    echi()
         .args(["clean", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -78,7 +78,7 @@ fn test_clean_dry_run_shows_but_does_not_delete() {
     fs::create_dir(&build_dir).unwrap();
     fs::write(build_dir.join("test.txt"), "test").unwrap();
 
-    echidna()
+    echi()
         .args(["clean", "--dry-run", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -97,7 +97,7 @@ fn test_clean_preserves_venv_by_default() {
     fs::create_dir(&venv_dir).unwrap();
     fs::write(venv_dir.join("pyvenv.cfg"), "test").unwrap();
 
-    echidna()
+    echi()
         .args(["clean", temp_dir.path().to_str().unwrap()])
         .assert()
         .success();
@@ -113,7 +113,7 @@ fn test_clean_all_removes_venv() {
     fs::create_dir(&venv_dir).unwrap();
     fs::write(venv_dir.join("pyvenv.cfg"), "test").unwrap();
 
-    echidna()
+    echi()
         .args(["clean", "--all", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -137,7 +137,7 @@ fn test_clean_removes_pycache_recursively() {
     let pycache2 = src_dir.join("__pycache__");
     fs::create_dir(&pycache2).unwrap();
 
-    echidna()
+    echi()
         .args(["clean", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -157,7 +157,7 @@ fn test_clean_multiple_artifacts() {
     fs::create_dir(temp_dir.path().join("dist")).unwrap();
     fs::create_dir(temp_dir.path().join("MyBundle.egg-info")).unwrap();
 
-    echidna()
+    echi()
         .args(["clean", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()

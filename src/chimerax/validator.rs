@@ -4,7 +4,7 @@ use super::detect::get_symlink_target;
 use crate::chimerax::{find_chimerax, get_chimerax_version};
 use crate::config::{Config, GlobalConfig};
 use crate::error::Result;
-use dialoguer::{theme::ColorfulTheme, Confirm, Select};
+use dialoguer::{Confirm, Select, theme::ColorfulTheme};
 use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 
@@ -66,24 +66,24 @@ impl ChimeraXValidator {
         project_config: &Option<Config>,
     ) -> ValidationResult {
         // Check project config first
-        if let Some(ref project) = project_config {
-            if let Some(ref path) = project.chimerax_path {
-                if path.exists() {
-                    let version = get_chimerax_version(path).ok();
-                    return ValidationResult::Valid {
-                        path: path.clone(),
-                        version,
-                    };
-                }
-                // Path doesn't exist - try to detect
-                let detected = find_chimerax();
-                let detected_version = detected.as_ref().and_then(|p| get_chimerax_version(p).ok());
-                return ValidationResult::PathNotFound {
-                    configured_path: path.clone(),
-                    detected_path: detected,
-                    detected_version,
+        if let Some(project) = project_config
+            && let Some(ref path) = project.chimerax_path
+        {
+            if path.exists() {
+                let version = get_chimerax_version(path).ok();
+                return ValidationResult::Valid {
+                    path: path.clone(),
+                    version,
                 };
             }
+            // Path doesn't exist - try to detect
+            let detected = find_chimerax();
+            let detected_version = detected.as_ref().and_then(|p| get_chimerax_version(p).ok());
+            return ValidationResult::PathNotFound {
+                configured_path: path.clone(),
+                detected_path: detected,
+                detected_version,
+            };
         }
 
         // Check global config
@@ -92,16 +92,15 @@ impl ChimeraXValidator {
                 let current_version = get_chimerax_version(path).ok();
 
                 // Check if version changed
-                if let (Some(ref cached), Some(ref current)) =
+                if let (Some(cached), Some(current)) =
                     (&global_config.chimerax_version, &current_version)
+                    && cached != current
                 {
-                    if cached != current {
-                        return ValidationResult::VersionChanged {
-                            path: path.clone(),
-                            old_version: cached.clone(),
-                            new_version: current.clone(),
-                        };
-                    }
+                    return ValidationResult::VersionChanged {
+                        path: path.clone(),
+                        old_version: cached.clone(),
+                        new_version: current.clone(),
+                    };
                 }
 
                 return ValidationResult::Valid {
@@ -151,15 +150,14 @@ impl ChimeraXValidator {
         match result {
             ValidationResult::Valid { path, version } => {
                 // Update cached version if we got one but didn't have it stored
-                if let Some(v) = version {
-                    if global_config.chimerax_version.is_none() {
-                        if let Err(e) = global_config.update_version(v) {
-                            eprintln!(
-                                "\x1b[33mWarning: Could not save version cache: {}\x1b[0m",
-                                e
-                            );
-                        }
-                    }
+                if let Some(v) = version
+                    && global_config.chimerax_version.is_none()
+                    && let Err(e) = global_config.update_version(v)
+                {
+                    eprintln!(
+                        "\x1b[33mWarning: Could not save version cache: {}\x1b[0m",
+                        e
+                    );
                 }
                 Ok(Some(path))
             }

@@ -112,10 +112,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: echidna-${{ matrix.target }}
+          name: echi-${{ matrix.target }}
           path: |
-            target/${{ matrix.target }}/release/echidna
-            target/${{ matrix.target }}/release/echidna.exe
+            target/${{ matrix.target }}/release/echi
+            target/${{ matrix.target }}/release/echi.exe
           if-no-files-found: ignore
 
   # Summary job for branch protection (always runs)

@@ -691,15 +691,17 @@ mod tests {
 
         // C++ templates go in src/chimerax/<package>/
         assert!(temp.path().join("pyproject.toml").exists());
-        assert!(temp
-            .path()
-            .join("src/chimerax/testcpp/__init__.py")
-            .exists());
+        assert!(
+            temp.path()
+                .join("src/chimerax/testcpp/__init__.py")
+                .exists()
+        );
         assert!(temp.path().join("src/chimerax/testcpp/cmd.py").exists());
-        assert!(temp
-            .path()
-            .join("src/chimerax/testcpp/_extension.cpp")
-            .exists());
+        assert!(
+            temp.path()
+                .join("src/chimerax/testcpp/_extension.cpp")
+                .exists()
+        );
         assert!(temp.path().join("scripts/smoke.cxc").exists());
         assert!(temp.path().join("README.md").exists());
         assert_eq!(created.len(), 6);
