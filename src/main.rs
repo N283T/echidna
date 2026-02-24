@@ -2,20 +2,20 @@
 
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{generate, Shell};
-use echidna::chimerax::ChimeraXValidator;
-use echidna::commands::{
+use echi::chimerax::ChimeraXValidator;
+use echi::commands::{
     build, clean, debug, docs, info, init, install, packages, publish, python, run, setup_ide,
     testing, validate, version, watch, workspace,
 };
-use echidna::config::{Config, GlobalConfig};
-use echidna::error::{EchidnaError, Result};
-use echidna::templates::BundleType;
-use echidna::workspace::Workspace;
+use echi::config::{Config, GlobalConfig};
+use echi::error::{EchidnaError, Result};
+use echi::templates::BundleType;
+use echi::workspace::Workspace;
 use std::io;
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "echidna")]
+#[command(name = "echi")]
 #[command(about = "ChimeraX Bundle Development CLI")]
 #[command(version)]
 #[command(author)]
@@ -535,7 +535,7 @@ fn run_cli() -> Result<()> {
                         Ok(())
                     }
                     None => Err(EchidnaError::ConfigError(
-                        "No workspace found. Use 'echidna workspace init' to create one.".into(),
+                        "No workspace found. Use 'echi workspace init' to create one.".into(),
                     )),
                 }
             } else {
@@ -702,7 +702,7 @@ fn run_cli() -> Result<()> {
                         }
                     }
                     None => Err(EchidnaError::ConfigError(
-                        "No workspace found. Use 'echidna workspace init' to create one.".into(),
+                        "No workspace found. Use 'echi workspace init' to create one.".into(),
                     )),
                 }
             } else {
@@ -723,7 +723,7 @@ fn run_cli() -> Result<()> {
 
         Command::Completions { shell } => {
             let mut cmd = Cli::command();
-            generate(shell, &mut cmd, "echidna", &mut io::stdout());
+            generate(shell, &mut cmd, "echi", &mut io::stdout());
             Ok(())
         }
 

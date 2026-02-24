@@ -7,8 +7,8 @@ use tempfile::TempDir;
 
 /// Get a command to run echidna.
 #[allow(deprecated)]
-fn echidna() -> Command {
-    Command::cargo_bin("echidna").unwrap()
+fn echi() -> Command {
+    Command::cargo_bin("echi").unwrap()
 }
 
 #[test]
@@ -16,7 +16,7 @@ fn test_init_creates_bundle_structure() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("my-tool");
 
-    echidna()
+    echi()
         .args(["init", "--name", "my-tool", project_dir.to_str().unwrap()])
         .assert()
         .success()
@@ -36,7 +36,7 @@ fn test_init_with_name_option() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("project");
 
-    echidna()
+    echi()
         .args([
             "init",
             "--name",
@@ -58,7 +58,7 @@ fn test_init_uses_directory_name_as_default() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("example-bundle");
 
-    echidna()
+    echi()
         .args(["init", project_dir.to_str().unwrap()])
         .assert()
         .success()
@@ -74,7 +74,7 @@ fn test_init_rejects_existing_directory_with_content() {
     // Create a file to make the directory non-empty
     fs::write(project_dir.join("existing-file.txt"), "content").unwrap();
 
-    echidna()
+    echi()
         .args(["init", "--name", "test", project_dir.to_str().unwrap()])
         .assert()
         .failure()
@@ -90,7 +90,7 @@ fn test_init_force_overwrites_existing() {
     // Create a file to make the directory non-empty
     fs::write(project_dir.join("existing-file.txt"), "content").unwrap();
 
-    echidna()
+    echi()
         .args([
             "init",
             "--name",
@@ -113,7 +113,7 @@ fn test_init_generates_valid_toml() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("toml-test");
 
-    echidna()
+    echi()
         .args(["init", "--name", "toml-test", project_dir.to_str().unwrap()])
         .assert()
         .success();
@@ -134,7 +134,7 @@ fn test_init_with_bundle_name_override() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("custom");
 
-    echidna()
+    echi()
         .args([
             "init",
             "--name",
@@ -156,7 +156,7 @@ fn test_init_with_package_override() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("pkg");
 
-    echidna()
+    echi()
         .args([
             "init",
             "--name",
@@ -176,7 +176,7 @@ fn test_init_with_package_override() {
 fn test_init_in_current_directory() {
     let temp = TempDir::new().unwrap();
 
-    echidna()
+    echi()
         .current_dir(temp.path())
         .args(["init", "--name", "current-dir-test", "."])
         .assert()
@@ -189,7 +189,7 @@ fn test_init_in_current_directory() {
 fn test_init_invalid_name() {
     let temp = TempDir::new().unwrap();
 
-    echidna()
+    echi()
         .args([
             "init",
             "--name",
@@ -208,7 +208,7 @@ fn test_init_empty_directory_succeeds() {
     fs::create_dir_all(&project_dir).unwrap();
 
     // Empty directory should succeed without --force
-    echidna()
+    echi()
         .args(["init", "--name", "test", project_dir.to_str().unwrap()])
         .assert()
         .success();
@@ -219,14 +219,14 @@ fn test_init_shows_next_steps() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("steps");
 
-    echidna()
+    echi()
         .args(["init", "--name", "test", project_dir.to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("Next steps:"))
-        .stdout(predicate::str::contains("echidna build"))
-        .stdout(predicate::str::contains("echidna install"))
-        .stdout(predicate::str::contains("echidna run"));
+        .stdout(predicate::str::contains("echi build"))
+        .stdout(predicate::str::contains("echi install"))
+        .stdout(predicate::str::contains("echi run"));
 }
 
 #[test]
@@ -234,7 +234,7 @@ fn test_init_with_type_tool() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("my-tool");
 
-    echidna()
+    echi()
         .args([
             "init",
             "--type",
@@ -262,7 +262,7 @@ fn test_init_with_type_format() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("my-format");
 
-    echidna()
+    echi()
         .args([
             "init",
             "--type",
@@ -288,7 +288,7 @@ fn test_init_with_type_cpp() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("my-ext");
 
-    echidna()
+    echi()
         .args([
             "init",
             "--type",
@@ -321,7 +321,7 @@ fn test_init_with_invalid_type() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("invalid");
 
-    echidna()
+    echi()
         .args([
             "init",
             "--type",
@@ -340,7 +340,7 @@ fn test_init_default_type_is_command() {
     let temp = TempDir::new().unwrap();
     let project_dir = temp.path().join("default");
 
-    echidna()
+    echi()
         .args(["init", "--name", "default", project_dir.to_str().unwrap()])
         .assert()
         .success()
@@ -355,7 +355,7 @@ fn test_init_with_project_name_creates_subdirectory() {
     let temp = TempDir::new().unwrap();
 
     // `echidna init hello-world` should create ./hello-world/
-    echidna()
+    echi()
         .current_dir(temp.path())
         .args(["init", "hello-world"])
         .assert()
@@ -374,7 +374,7 @@ fn test_init_without_args_uses_current_dir() {
     fs::create_dir_all(&project_dir).unwrap();
 
     // `echidna init` in a directory should use that directory
-    echidna()
+    echi()
         .current_dir(&project_dir)
         .args(["init"])
         .assert()
@@ -392,7 +392,7 @@ fn test_init_with_dot_uses_current_dir() {
     fs::create_dir_all(&project_dir).unwrap();
 
     // `echidna init .` should use current directory
-    echidna()
+    echi()
         .current_dir(&project_dir)
         .args(["init", "."])
         .assert()
@@ -407,7 +407,7 @@ fn test_init_with_name_override() {
     let temp = TempDir::new().unwrap();
 
     // `echidna init foo --name custom` should create ./foo/ with name "custom"
-    echidna()
+    echi()
         .current_dir(temp.path())
         .args(["init", "foo", "--name", "custom-name"])
         .assert()

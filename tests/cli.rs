@@ -5,13 +5,13 @@ use predicates::prelude::*;
 
 /// Get a command to run echidna.
 #[allow(deprecated)]
-fn echidna() -> Command {
-    Command::cargo_bin("echidna").unwrap()
+fn echi() -> Command {
+    Command::cargo_bin("echi").unwrap()
 }
 
 #[test]
 fn test_help() {
-    echidna()
+    echi()
         .arg("--help")
         .assert()
         .success()
@@ -34,7 +34,7 @@ fn test_help() {
 
 #[test]
 fn test_version() {
-    echidna()
+    echi()
         .arg("--version")
         .assert()
         .success()
@@ -43,7 +43,7 @@ fn test_version() {
 
 #[test]
 fn test_init_help() {
-    echidna()
+    echi()
         .args(["init", "--help"])
         .assert()
         .success()
@@ -57,7 +57,7 @@ fn test_init_help() {
 
 #[test]
 fn test_build_help() {
-    echidna()
+    echi()
         .args(["build", "--help"])
         .assert()
         .success()
@@ -67,7 +67,7 @@ fn test_build_help() {
 
 #[test]
 fn test_install_help() {
-    echidna()
+    echi()
         .args(["install", "--help"])
         .assert()
         .success()
@@ -78,7 +78,7 @@ fn test_install_help() {
 
 #[test]
 fn test_run_help() {
-    echidna()
+    echi()
         .args(["run", "--help"])
         .assert()
         .success()
@@ -92,7 +92,7 @@ fn test_run_help() {
 
 #[test]
 fn test_python_help() {
-    echidna()
+    echi()
         .args(["python", "--help"])
         .assert()
         .success()
@@ -104,7 +104,7 @@ fn test_python_help() {
 
 #[test]
 fn test_docs_help() {
-    echidna()
+    echi()
         .args(["docs", "--help"])
         .assert()
         .success()
@@ -116,7 +116,7 @@ fn test_docs_help() {
 
 #[test]
 fn test_publish_help() {
-    echidna()
+    echi()
         .args(["publish", "--help"])
         .assert()
         .success()
@@ -128,7 +128,7 @@ fn test_publish_help() {
 
 #[test]
 fn test_invalid_subcommand() {
-    echidna()
+    echi()
         .arg("invalid-subcommand")
         .assert()
         .failure()
@@ -137,7 +137,7 @@ fn test_invalid_subcommand() {
 
 #[test]
 fn test_no_subcommand() {
-    echidna()
+    echi()
         .assert()
         .failure()
         .stderr(predicate::str::contains("Usage"));
@@ -146,7 +146,7 @@ fn test_no_subcommand() {
 #[test]
 fn test_global_verbose_flag() {
     // --verbose is a global flag
-    echidna()
+    echi()
         .args(["--verbose", "init", "--help"])
         .assert()
         .success();
@@ -155,7 +155,7 @@ fn test_global_verbose_flag() {
 #[test]
 fn test_global_chimerax_option() {
     // --chimerax is a global option
-    echidna()
+    echi()
         .args(["--chimerax", "/path/to/chimerax", "init", "--help"])
         .assert()
         .success();
@@ -163,34 +163,34 @@ fn test_global_chimerax_option() {
 
 #[test]
 fn test_completions_bash() {
-    echidna()
+    echi()
         .args(["completions", "bash"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("_echidna()"));
+        .stdout(predicate::str::contains("_echi()"));
 }
 
 #[test]
 fn test_completions_zsh() {
-    echidna()
+    echi()
         .args(["completions", "zsh"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("#compdef echidna"));
+        .stdout(predicate::str::contains("#compdef echi"));
 }
 
 #[test]
 fn test_completions_fish() {
-    echidna()
+    echi()
         .args(["completions", "fish"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("complete -c echidna"));
+        .stdout(predicate::str::contains("complete -c echi"));
 }
 
 #[test]
 fn test_completions_powershell() {
-    echidna()
+    echi()
         .args(["completions", "powershell"])
         .assert()
         .success()
@@ -199,7 +199,7 @@ fn test_completions_powershell() {
 
 #[test]
 fn test_venv_help() {
-    echidna()
+    echi()
         .args(["venv", "--help"])
         .assert()
         .success()
@@ -215,7 +215,7 @@ fn test_venv_help() {
 #[test]
 fn test_setup_ide_alias() {
     // setup-ide should still work as hidden alias
-    echidna()
+    echi()
         .args(["setup-ide", "--help"])
         .assert()
         .success()
@@ -224,7 +224,7 @@ fn test_setup_ide_alias() {
 
 #[test]
 fn test_clean_help() {
-    echidna()
+    echi()
         .args(["clean", "--help"])
         .assert()
         .success()
@@ -235,7 +235,7 @@ fn test_clean_help() {
 
 #[test]
 fn test_validate_help() {
-    echidna()
+    echi()
         .args(["validate", "--help"])
         .assert()
         .success()
@@ -247,7 +247,7 @@ fn test_validate_help() {
 
 #[test]
 fn test_info_help() {
-    echidna()
+    echi()
         .args(["info", "--help"])
         .assert()
         .success()
@@ -258,7 +258,7 @@ fn test_info_help() {
 
 #[test]
 fn test_test_help() {
-    echidna()
+    echi()
         .args(["test", "--help"])
         .assert()
         .success()
@@ -274,7 +274,7 @@ fn test_test_help() {
 
 #[test]
 fn test_watch_help() {
-    echidna()
+    echi()
         .args(["watch", "--help"])
         .assert()
         .success()
@@ -287,7 +287,7 @@ fn test_watch_help() {
 
 #[test]
 fn test_version_help() {
-    echidna()
+    echi()
         .args(["version", "--help"])
         .assert()
         .success()
@@ -298,7 +298,7 @@ fn test_version_help() {
 
 #[test]
 fn test_debug_help() {
-    echidna()
+    echi()
         .args(["debug", "--help"])
         .assert()
         .success()
@@ -311,7 +311,7 @@ fn test_debug_help() {
 
 #[test]
 fn test_workspace_help() {
-    echidna()
+    echi()
         .args(["workspace", "--help"])
         .assert()
         .success()
@@ -322,7 +322,7 @@ fn test_workspace_help() {
 
 #[test]
 fn test_workspace_init_help() {
-    echidna()
+    echi()
         .args(["workspace", "init", "--help"])
         .assert()
         .success()
@@ -332,7 +332,7 @@ fn test_workspace_init_help() {
 
 #[test]
 fn test_workspace_list_help() {
-    echidna()
+    echi()
         .args(["workspace", "list", "--help"])
         .assert()
         .success()
@@ -341,7 +341,7 @@ fn test_workspace_list_help() {
 
 #[test]
 fn test_build_all_flag() {
-    echidna()
+    echi()
         .args(["build", "--help"])
         .assert()
         .success()
@@ -350,7 +350,7 @@ fn test_build_all_flag() {
 
 #[test]
 fn test_test_all_flag() {
-    echidna()
+    echi()
         .args(["test", "--help"])
         .assert()
         .success()

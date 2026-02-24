@@ -22,7 +22,7 @@ pub fn execute(args: InstallArgs) -> Result<()> {
     ui::success("Installation successful!");
     ui::hint("The bundle is now available in ChimeraX.");
     ui::next_steps(&[
-        ("echidna run", "Launch ChimeraX with the bundle"),
+        ("echi run", "Launch ChimeraX with the bundle"),
         ("chimerax", "Open ChimeraX manually"),
     ]);
 

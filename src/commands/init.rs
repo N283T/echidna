@@ -132,15 +132,15 @@ pub fn execute(args: InitArgs) -> Result<()> {
                 &format!("cd {}", target_dir.display()),
                 "Navigate to project",
             ),
-            ("echidna build", "Build the wheel"),
-            ("echidna install", "Install to ChimeraX"),
-            ("echidna run", "Build, install, and launch ChimeraX"),
+            ("echi build", "Build the wheel"),
+            ("echi install", "Install to ChimeraX"),
+            ("echi run", "Build, install, and launch ChimeraX"),
         ]);
     } else {
         ui::next_steps(&[
-            ("echidna build", "Build the wheel"),
-            ("echidna install", "Install to ChimeraX"),
-            ("echidna run", "Build, install, and launch ChimeraX"),
+            ("echi build", "Build the wheel"),
+            ("echi install", "Install to ChimeraX"),
+            ("echi run", "Build, install, and launch ChimeraX"),
         ]);
     }
 

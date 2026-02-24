@@ -18,7 +18,7 @@ pub enum EchidnaError {
     #[error("Not a valid bundle directory: {0} (missing pyproject.toml)")]
     NotBundleDirectory(PathBuf),
 
-    #[error("No wheel found in dist/. Run 'echidna build' first.")]
+    #[error("No wheel found in dist/. Run 'echi build' first.")]
     NoWheelFound,
 
     #[error("Directory already exists: {0}")]

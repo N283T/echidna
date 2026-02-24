@@ -144,7 +144,7 @@ fn print_preparation_results(prep: &PublishPreparation) {
     if let Some(ref wheel) = prep.wheel_path {
         println!("  ✓ Wheel found: {}", wheel.display());
     } else {
-        println!("  ✗ No wheel found in dist/. Run 'echidna build' first.");
+        println!("  ✗ No wheel found in dist/. Run 'echi build' first.");
     }
 }
 

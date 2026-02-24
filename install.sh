@@ -5,7 +5,7 @@
 set -e
 
 REPO="N283T/echidna"
-BINARY_NAME="echidna"
+BINARY_NAME="echi"
 
 # Colors
 RED='\033[0;31m'
@@ -154,7 +154,7 @@ main() {
     mv "$binary" "${install_dir}/${BINARY_NAME}"
     chmod +x "${install_dir}/${BINARY_NAME}"
 
-    success "Echidna ${version} installed successfully!"
+    success "echi ${version} installed successfully!"
 
     # Check if install_dir is in PATH
     case ":$PATH:" in
@@ -168,7 +168,7 @@ main() {
     esac
 
     echo ""
-    info "Run 'echidna --help' to get started"
+    info "Run 'echi --help' to get started"
 }
 
 main "$@"

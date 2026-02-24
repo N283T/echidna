@@ -12,7 +12,7 @@ Thank you for your interest in contributing to echidna!
 ### Getting Started
 
 ```bash
-git clone https://github.com/nagaet/echidna.git
+git clone https://github.com/N283T/echidna.git
 cd echidna
 cargo build
 cargo test
@@ -82,7 +82,7 @@ cargo test -- --nocapture
 
 When reporting issues, please include:
 
-- echidna version (`echidna --version`)
+- echi version (`echi --version`)
 - Operating system and version
 - ChimeraX version (if relevant)
 - Steps to reproduce the issue

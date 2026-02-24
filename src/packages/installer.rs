@@ -179,13 +179,13 @@ impl PackageInstaller {
 
     fn log_command(&self, cmd: &str) {
         if self.verbosity >= 1 {
-            eprintln!("[echidna] Executing: {}", cmd);
+            eprintln!("[echi] Executing: {}", cmd);
         }
     }
 
     fn log_output(&self, output: &str) {
         if self.verbosity >= 2 {
-            eprintln!("[echidna] Output:\n{}", output);
+            eprintln!("[echi] Output:\n{}", output);
         }
     }
 }
