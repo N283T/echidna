@@ -67,7 +67,10 @@ pub fn execute(args: DebugArgs) -> Result<()> {
 
     if !status.success() {
         let code = status.code().unwrap_or(-1);
-        println!("ChimeraX exited with code: {}", code);
+        return Err(crate::error::EchidnaError::ChimeraXCommandFailed(format!(
+            "ChimeraX debug exited with code: {}",
+            code
+        )));
     }
 
     Ok(())

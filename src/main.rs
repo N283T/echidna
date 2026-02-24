@@ -371,7 +371,7 @@ fn test_all(
             }
             println!("Testing {} bundles in workspace...\n", members.len());
             let chimerax = chimerax_path()?;
-            let mut all_passed = true;
+            let mut failed: Vec<String> = Vec::new();
             for member in &members {
                 println!("=== {} ===", member.display());
                 let result = testing::execute(testing::TestArgs {
@@ -386,17 +386,17 @@ fn test_all(
                     chimerax: chimerax.clone(),
                     verbosity,
                 });
-                if result.is_err() {
-                    all_passed = false;
-                    eprintln!("Tests failed for {}", member.display());
+                if let Err(e) = result {
+                    eprintln!("Tests failed for {}: {}", member.display(), e);
+                    failed.push(member.display().to_string());
                 }
                 println!();
             }
-            if all_passed {
+            if failed.is_empty() {
                 println!("All {} bundles passed tests.", members.len());
                 Ok(())
             } else {
-                Err(EchidnaError::TestFailed(1))
+                Err(EchidnaError::TestFailed(failed.len() as i32))
             }
         }
         None => Err(EchidnaError::ConfigError(
