@@ -14,3 +14,10 @@ pub mod workspace;
 
 pub use config::Config;
 pub use error::{EchidnaError, Result};
+
+/// Output format for commands that support text/JSON output.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub enum OutputFormat {
+    Text,
+    Json,
+}

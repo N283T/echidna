@@ -1,6 +1,7 @@
 //! ChimeraX executable detection.
 
 use crate::error::Result;
+use directories::BaseDirs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -12,7 +13,7 @@ fn default_paths() -> Vec<PathBuf> {
             "/Applications/ChimeraX.app/Contents/MacOS/ChimeraX",
         )];
 
-        if let Some(home) = dirs::home_dir() {
+        if let Some(home) = BaseDirs::new().map(|d| d.home_dir().to_path_buf()) {
             paths.push(home.join("Applications/ChimeraX.app/Contents/MacOS/ChimeraX"));
         }
 
@@ -35,7 +36,7 @@ fn default_paths() -> Vec<PathBuf> {
             PathBuf::from("/opt/UCSF/ChimeraX/bin/chimerax"),
         ];
 
-        if let Some(home) = dirs::home_dir() {
+        if let Some(home) = BaseDirs::new().map(|d| d.home_dir().to_path_buf()) {
             paths.push(home.join("ChimeraX/bin/chimerax"));
             paths.push(home.join(".local/bin/chimerax"));
         }

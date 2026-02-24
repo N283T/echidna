@@ -1,7 +1,8 @@
 //! Echidna CLI entry point.
 
-use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
+use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::{Shell, generate};
+use echi::OutputFormat;
 use echi::chimerax::ChimeraXValidator;
 use echi::commands::{
     build, clean, debug, docs, info, init, install, packages, publish, python, run, setup_ide,
@@ -398,30 +399,6 @@ enum PackagesCommand {
     },
 }
 
-#[derive(Clone, Copy, ValueEnum)]
-enum OutputFormat {
-    Text,
-    Json,
-}
-
-impl From<OutputFormat> for python::OutputFormat {
-    fn from(f: OutputFormat) -> Self {
-        match f {
-            OutputFormat::Text => python::OutputFormat::Text,
-            OutputFormat::Json => python::OutputFormat::Json,
-        }
-    }
-}
-
-impl From<OutputFormat> for packages::OutputFormat {
-    fn from(f: OutputFormat) -> Self {
-        match f {
-            OutputFormat::Text => packages::OutputFormat::Text,
-            OutputFormat::Json => packages::OutputFormat::Json,
-        }
-    }
-}
-
 fn main() {
     if let Err(e) = run_cli() {
         eprintln!("error: {}", e);
@@ -573,7 +550,7 @@ fn run_cli() -> Result<()> {
         }),
 
         Command::Python { format } => python::execute(python::PythonArgs {
-            format: format.into(),
+            format,
             chimerax: chimerax_path()?,
             verbosity,
         }),
@@ -583,7 +560,7 @@ fn run_cli() -> Result<()> {
                 format,
                 include_stdlib,
             } => packages::list(packages::ListArgs {
-                format: format.into(),
+                format,
                 include_stdlib,
                 chimerax: chimerax_path()?,
                 verbosity,
@@ -595,7 +572,7 @@ fn run_cli() -> Result<()> {
             } => packages::check(packages::CheckArgs {
                 package,
                 requirements,
-                format: format.into(),
+                format,
                 chimerax: chimerax_path()?,
                 verbosity,
             }),

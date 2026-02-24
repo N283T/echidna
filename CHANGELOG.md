@@ -7,4 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fix CONTRIBUTING.md Rust version requirement (1.70+ -> 1.85+ for edition 2024)
+- Fix README.md and config.rs ChimeraX path (Contents/bin -> Contents/MacOS)
+- Fix install.sh branch reference (master -> main)
+
+### Changed
+- Unify OutputFormat enum into shared type in lib.rs (was triplicated)
+- Replace raw ANSI escape codes in validator.rs with colored crate
+- Replace dirs crate with directories crate (redundant dependency)
+
+### Removed
+- Remove unused check_packages() method from PackageResolver
+- Remove unused SaveTarget::Project variant
+- Clean up 13 stale branches (local and remote)
+
 [Unreleased]: https://github.com/N283T/echidna/commits/main

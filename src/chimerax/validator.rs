@@ -4,6 +4,7 @@ use super::detect::get_symlink_target;
 use crate::chimerax::{find_chimerax, get_chimerax_version};
 use crate::config::{Config, GlobalConfig};
 use crate::error::Result;
+use colored::Colorize;
 use dialoguer::{Confirm, Select, theme::ColorfulTheme};
 use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
@@ -48,8 +49,6 @@ pub enum ValidationResult {
 pub enum SaveTarget {
     /// Save to global config (~/.config/echidna/config.toml)
     Global,
-    /// Save to project config (echidna.toml)
-    Project,
     /// Don't save
     None,
 }
@@ -142,7 +141,7 @@ impl ChimeraXValidator {
             && global_config.chimerax_path.is_none();
 
         if needs_detection {
-            eprintln!("\x1b[90mSearching for ChimeraX...\x1b[0m");
+            eprintln!("{}", "Searching for ChimeraX...".dimmed());
         }
 
         let result = Self::validate(global_config, project_config);
@@ -155,8 +154,8 @@ impl ChimeraXValidator {
                     && let Err(e) = global_config.update_version(v)
                 {
                     eprintln!(
-                        "\x1b[33mWarning: Could not save version cache: {}\x1b[0m",
-                        e
+                        "{}",
+                        format!("Warning: Could not save version cache: {}", e).yellow()
                     );
                 }
                 Ok(Some(path))
@@ -192,7 +191,10 @@ impl ChimeraXValidator {
         detected_path: Option<PathBuf>,
         detected_version: Option<String>,
     ) -> Result<Option<PathBuf>> {
-        eprintln!("\n\x1b[33m\u{26a0} Warning: Configured ChimeraX path not found:\x1b[0m");
+        eprintln!(
+            "\n{}",
+            "\u{26a0} Warning: Configured ChimeraX path not found:".yellow()
+        );
         eprintln!("  {}", configured_path.display());
 
         if let Some(ref path) = detected_path {
@@ -200,16 +202,19 @@ impl ChimeraXValidator {
                 .as_ref()
                 .map(|v| format!(" (v{})", v))
                 .unwrap_or_default();
-            eprintln!("\n\x1b[32m? Auto-detected ChimeraX at:\x1b[0m");
+            eprintln!("\n{}", "? Auto-detected ChimeraX at:".green());
             eprintln!("  {}{}", path.display(), version_str);
             // Show symlink target if path is a symlink
             if let Some(target) = get_symlink_target(path) {
-                eprintln!("  \x1b[90m-> {}\x1b[0m", target.display());
+                eprintln!("  {}", format!("-> {}", target.display()).dimmed());
             }
 
             // In non-interactive mode, use detected path without saving
             if !is_interactive() {
-                eprintln!("\n\x1b[90mUsing detected path (non-interactive mode).\x1b[0m");
+                eprintln!(
+                    "\n{}",
+                    "Using detected path (non-interactive mode).".dimmed()
+                );
                 return Ok(Some(path.clone()));
             }
 
@@ -218,19 +223,22 @@ impl ChimeraXValidator {
             match save_target {
                 SaveTarget::Global => {
                     global_config.update_chimerax(path.clone(), detected_version)?;
-                    eprintln!("\n\x1b[32m\u{2713} Updated global configuration.\x1b[0m");
+                    eprintln!("\n{}", "\u{2713} Updated global configuration.".green());
                     if let Some(config_path) = GlobalConfig::path() {
                         eprintln!("  {}", config_path.display());
                     }
                     Ok(Some(path.clone()))
                 }
-                SaveTarget::Project | SaveTarget::None => {
-                    eprintln!("\n\x1b[90mUsing detected path for this session only.\x1b[0m");
+                SaveTarget::None => {
+                    eprintln!(
+                        "\n{}",
+                        "Using detected path for this session only.".dimmed()
+                    );
                     Ok(Some(path.clone()))
                 }
             }
         } else {
-            eprintln!("\n\x1b[31m\u{2717} Could not auto-detect ChimeraX.\x1b[0m");
+            eprintln!("\n{}", "\u{2717} Could not auto-detect ChimeraX.".red());
             eprintln!("  Please install ChimeraX or specify the path with --chimerax");
             Ok(None)
         }
@@ -243,19 +251,23 @@ impl ChimeraXValidator {
         new_version: &str,
     ) -> Result<Option<PathBuf>> {
         eprintln!(
-            "\n\x1b[36m\u{2139} ChimeraX version changed: {} \u{2192} {}\x1b[0m",
-            old_version, new_version
+            "\n{}",
+            format!(
+                "\u{2139} ChimeraX version changed: {} \u{2192} {}",
+                old_version, new_version
+            )
+            .cyan()
         );
 
         // In non-interactive mode, auto-update the cached version
         if !is_interactive() {
             if let Err(e) = global_config.update_version(new_version.to_string()) {
                 eprintln!(
-                    "\x1b[33mWarning: Could not update version cache: {}\x1b[0m",
-                    e
+                    "{}",
+                    format!("Warning: Could not update version cache: {}", e).yellow()
                 );
             } else {
-                eprintln!("\n\x1b[32m\u{2713} Updated cached version.\x1b[0m");
+                eprintln!("\n{}", "\u{2713} Updated cached version.".green());
             }
             return Ok(Some(path));
         }
@@ -267,7 +279,7 @@ impl ChimeraXValidator {
 
         if update {
             global_config.update_version(new_version.to_string())?;
-            eprintln!("\n\x1b[32m\u{2713} Updated cached version.\x1b[0m");
+            eprintln!("\n{}", "\u{2713} Updated cached version.".green());
         }
 
         Ok(Some(path))
@@ -284,11 +296,11 @@ impl ChimeraXValidator {
                 .map(|v| format!(" (v{})", v))
                 .unwrap_or_default();
 
-            eprintln!("\n\x1b[32m\u{2713} Auto-detected ChimeraX:\x1b[0m");
+            eprintln!("\n{}", "\u{2713} Auto-detected ChimeraX:".green());
             eprintln!("  {}{}", path.display(), version_str);
             // Show symlink target if path is a symlink
             if let Some(target) = get_symlink_target(path) {
-                eprintln!("  \x1b[90m-> {}\x1b[0m", target.display());
+                eprintln!("  {}", format!("-> {}", target.display()).dimmed());
             }
 
             // In non-interactive mode, use detected path without prompting
@@ -303,7 +315,7 @@ impl ChimeraXValidator {
 
             if save {
                 global_config.update_chimerax(path.clone(), detected_version)?;
-                eprintln!("\n\x1b[32m\u{2713} Saved to global configuration.\x1b[0m");
+                eprintln!("\n{}", "\u{2713} Saved to global configuration.".green());
                 if let Some(config_path) = GlobalConfig::path() {
                     eprintln!("  {}", config_path.display());
                 }
@@ -377,9 +389,8 @@ mod tests {
     #[test]
     fn test_save_target_values() {
         assert_eq!(SaveTarget::Global, SaveTarget::Global);
-        assert_eq!(SaveTarget::Project, SaveTarget::Project);
         assert_eq!(SaveTarget::None, SaveTarget::None);
-        assert_ne!(SaveTarget::Global, SaveTarget::Project);
+        assert_ne!(SaveTarget::Global, SaveTarget::None);
     }
 
     #[test]

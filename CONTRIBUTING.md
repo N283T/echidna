@@ -6,7 +6,7 @@ Thank you for your interest in contributing to echidna!
 
 ### Prerequisites
 
-- Rust 1.70+ (install via [rustup](https://rustup.rs/))
+- Rust 1.85+ (install via [rustup](https://rustup.rs/), edition 2024)
 - [UCSF ChimeraX](https://www.cgl.ucsf.edu/chimerax/) (optional, for integration testing)
 
 ### Getting Started

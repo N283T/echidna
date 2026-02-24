@@ -1,15 +1,9 @@
 //! `echidna python` command implementation.
 
+use crate::OutputFormat;
 use crate::chimerax::{ChimeraXExecutor, Verbosity};
 use crate::error::Result;
 use std::path::PathBuf;
-
-/// Output format for python info.
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum OutputFormat {
-    Text,
-    Json,
-}
 
 /// Arguments for the python command.
 pub struct PythonArgs {
