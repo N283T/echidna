@@ -240,6 +240,10 @@ impl ChimeraXValidator {
         } else {
             eprintln!("\n{}", "\u{2717} Could not auto-detect ChimeraX.".red());
             eprintln!("  Please install ChimeraX or specify the path with --chimerax");
+            eprintln!(
+                "  {}",
+                "Hint: Flatpak installs require --chimerax or CHIMERAX_PATH".dimmed()
+            );
             Ok(None)
         }
     }
@@ -325,6 +329,10 @@ impl ChimeraXValidator {
         } else {
             eprintln!("\n{}", "\u{2717} Could not auto-detect ChimeraX.".red());
             eprintln!("  Please install ChimeraX or specify the path with --chimerax");
+            eprintln!(
+                "  {}",
+                "Hint: Flatpak installs require --chimerax or CHIMERAX_PATH".dimmed()
+            );
             Ok(None)
         }
     }

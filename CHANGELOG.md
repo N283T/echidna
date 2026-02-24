@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix CONTRIBUTING.md Rust version requirement (1.70+ -> 1.85+ for edition 2024)
 - Fix README.md and config.rs ChimeraX path (Contents/bin -> Contents/MacOS)
 - Fix install.sh branch reference (master -> main)
+- Fix Linux detection paths: add DEB/RPM binary paths, remove incorrect /opt path
+- Add Windows detection for older versioned install directories (e.g., "ChimeraX 1.3")
+- Show helpful message when ChimeraX auto-detection fails (including Flatpak hint)
 
 ### Changed
 - Unify OutputFormat enum into shared type in lib.rs (was triplicated)

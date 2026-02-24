@@ -22,22 +22,43 @@ fn default_paths() -> Vec<PathBuf> {
 
     #[cfg(target_os = "windows")]
     {
-        vec![
+        let mut paths = vec![
             PathBuf::from(r"C:\Program Files\ChimeraX\bin\ChimeraX-console.exe"),
             PathBuf::from(r"C:\Program Files\ChimeraX\bin\chimerax.exe"),
-        ]
+        ];
+
+        // Older installers (pre-1.7) used versioned directories like "ChimeraX 1.3"
+        if let Ok(entries) = std::fs::read_dir(r"C:\Program Files") {
+            let mut versioned: Vec<PathBuf> = entries
+                .filter_map(|e| e.ok())
+                .filter(|e| {
+                    let name = e.file_name();
+                    let name = name.to_string_lossy();
+                    name.starts_with("ChimeraX ") && name != "ChimeraX"
+                })
+                .map(|e| e.path().join(r"bin\ChimeraX-console.exe"))
+                .collect();
+            // Sort descending so newer versions are tried first
+            versioned.sort_by(|a, b| b.cmp(a));
+            paths.extend(versioned);
+        }
+
+        paths
     }
 
     #[cfg(target_os = "linux")]
     {
         let mut paths = vec![
+            // Symlink installed by DEB and RPM packages
             PathBuf::from("/usr/bin/chimerax"),
             PathBuf::from("/usr/local/bin/chimerax"),
-            PathBuf::from("/opt/UCSF/ChimeraX/bin/chimerax"),
+            // DEB package (Ubuntu/Debian) binary
+            PathBuf::from("/usr/lib/ucsf-chimerax/bin/ChimeraX"),
+            // RPM package (RHEL/Rocky/CentOS) binary
+            PathBuf::from("/usr/libexec/UCSF-ChimeraX/bin/ChimeraX"),
         ];
 
         if let Some(home) = BaseDirs::new().map(|d| d.home_dir().to_path_buf()) {
-            paths.push(home.join("ChimeraX/bin/chimerax"));
             paths.push(home.join(".local/bin/chimerax"));
         }
 
@@ -80,6 +101,10 @@ fn is_executable(path: &Path) -> bool {
 /// 1. CHIMERAX_PATH environment variable
 /// 2. PATH search (via `which`)
 /// 3. Platform-specific default paths
+///
+/// Note: Flatpak installations (`flatpak run edu.ucsf.rbvi.ChimeraX`) are not
+/// detected because they require a different invocation method. Users should set
+/// CHIMERAX_PATH or add an alias to their PATH.
 pub fn find_chimerax() -> Option<PathBuf> {
     // 1. Check environment variable
     if let Ok(path) = std::env::var("CHIMERAX_PATH") {
