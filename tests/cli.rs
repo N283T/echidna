@@ -303,8 +303,6 @@ fn test_debug_help() {
         .assert()
         .success()
         .stdout(predicate::str::contains("Launch ChimeraX in debug mode"))
-        .stdout(predicate::str::contains("--pdb"))
-        .stdout(predicate::str::contains("--profile"))
         .stdout(predicate::str::contains("--no-build"))
         .stdout(predicate::str::contains("--no-install"));
 }

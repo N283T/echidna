@@ -19,10 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unify OutputFormat enum into shared type in lib.rs (was triplicated)
 - Replace raw ANSI escape codes in validator.rs with colored crate
 - Replace dirs crate with directories crate (redundant dependency)
+- Split main.rs into cli.rs (CLI definitions) and main.rs (routing logic)
+- Use data-driven template generation in bundle.rs (reduce repetition)
+- Use type-specific smoke test templates (generic for non-command bundles)
 
 ### Removed
 - Remove unused check_packages() method from PackageResolver
 - Remove unused SaveTarget::Project variant
+- Remove incomplete --pdb and --profile flags from debug command
 - Clean up 13 stale branches (local and remote)
 
 [Unreleased]: https://github.com/N283T/echidna/commits/main
