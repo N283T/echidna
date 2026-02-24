@@ -38,7 +38,16 @@ pub fn execute_quiet(args: InstallArgs) -> Result<()> {
 
 /// Core install logic.
 fn execute_core(args: &InstallArgs) -> Result<()> {
-    let project_dir = args.path.canonicalize().unwrap_or(args.path.clone());
+    let project_dir = args.path.canonicalize().map_err(|e| {
+        EchidnaError::Io(std::io::Error::new(
+            e.kind(),
+            format!(
+                "Cannot access project directory '{}': {}",
+                args.path.display(),
+                e
+            ),
+        ))
+    })?;
 
     // Verify this is a bundle directory
     let pyproject = project_dir.join("pyproject.toml");
