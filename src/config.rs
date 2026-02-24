@@ -146,7 +146,7 @@ mod tests {
         let toml = r#"
 bundle_name = "ChimeraX-Example"
 package_name = "chimerax.example"
-chimerax_path = "/Applications/ChimeraX.app/Contents/bin/ChimeraX"
+chimerax_path = "/Applications/ChimeraX.app/Contents/MacOS/ChimeraX"
 default_script = "scripts/test.cxc"
 user_install = true
 "#;
@@ -156,7 +156,7 @@ user_install = true
         assert_eq!(
             config.chimerax_path,
             Some(PathBuf::from(
-                "/Applications/ChimeraX.app/Contents/bin/ChimeraX"
+                "/Applications/ChimeraX.app/Contents/MacOS/ChimeraX"
             ))
         );
         assert_eq!(

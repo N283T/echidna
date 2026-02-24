@@ -6,4 +6,4 @@ mod validator;
 
 pub use detect::{find_chimerax, get_chimerax_version};
 pub use executor::{ChimeraXExecutor, PythonInfo, Verbosity};
-pub use validator::{ChimeraXValidator, SaveTarget, ValidationResult};
+pub use validator::{ChimeraXValidator, ValidationResult};

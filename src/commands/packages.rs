@@ -1,5 +1,6 @@
 //! `echidna packages` command implementation.
 
+use crate::OutputFormat;
 use crate::chimerax::{ChimeraXExecutor, Verbosity};
 use crate::error::{EchidnaError, Result};
 use crate::packages::{
@@ -7,13 +8,6 @@ use crate::packages::{
 };
 use std::fs;
 use std::path::PathBuf;
-
-/// Output format for package info.
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum OutputFormat {
-    Text,
-    Json,
-}
 
 /// Arguments for the `packages list` command.
 pub struct ListArgs {

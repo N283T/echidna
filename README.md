@@ -235,7 +235,7 @@ bundle_name = "ChimeraX-MyTool"
 package_name = "chimerax.mytool"
 
 # Path to ChimeraX executable (optional, auto-detected)
-chimerax_path = "/Applications/ChimeraX.app/Contents/bin/ChimeraX"
+chimerax_path = "/Applications/ChimeraX.app/Contents/MacOS/ChimeraX"
 
 # Default script to run on `echi run`
 default_script = "scripts/test.cxc"

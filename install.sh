@@ -1,6 +1,6 @@
 #!/bin/sh
 # Echidna installer script
-# Usage: curl -sSfL https://raw.githubusercontent.com/N283T/echidna/master/install.sh | sh
+# Usage: curl -sSfL https://raw.githubusercontent.com/N283T/echidna/main/install.sh | sh
 
 set -e
 

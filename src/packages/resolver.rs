@@ -58,11 +58,6 @@ impl PackageResolver {
         }
     }
 
-    /// Check multiple packages at once.
-    pub fn check_packages(&self, packages: &[String]) -> Result<Vec<ConflictCheckResult>> {
-        packages.iter().map(|p| self.check_package(p)).collect()
-    }
-
     // === uv implementation ===
 
     fn list_uv(&self) -> Result<Vec<PackageInfo>> {
