@@ -61,22 +61,21 @@ pub fn execute(args: InfoArgs) -> Result<()> {
             let wheel_name = wheel.file_name().unwrap_or_default().to_string_lossy();
             println!("Latest wheel:   {}", wheel_name);
 
-            if let Ok(metadata) = wheel.metadata() {
-                if let Ok(modified) = metadata.modified() {
-                    if let Ok(elapsed) = modified.elapsed() {
-                        let secs = elapsed.as_secs();
-                        let time_str = if secs < 60 {
-                            format!("{} seconds ago", secs)
-                        } else if secs < 3600 {
-                            format!("{} minutes ago", secs / 60)
-                        } else if secs < 86400 {
-                            format!("{} hours ago", secs / 3600)
-                        } else {
-                            format!("{} days ago", secs / 86400)
-                        };
-                        println!("Built:          {}", time_str);
-                    }
-                }
+            if let Ok(metadata) = wheel.metadata()
+                && let Ok(modified) = metadata.modified()
+                && let Ok(elapsed) = modified.elapsed()
+            {
+                let secs = elapsed.as_secs();
+                let time_str = if secs < 60 {
+                    format!("{} seconds ago", secs)
+                } else if secs < 3600 {
+                    format!("{} minutes ago", secs / 60)
+                } else if secs < 86400 {
+                    format!("{} hours ago", secs / 3600)
+                } else {
+                    format!("{} days ago", secs / 86400)
+                };
+                println!("Built:          {}", time_str);
             }
         } else {
             println!("Latest wheel:   (none)");

@@ -3,7 +3,7 @@
 //! Validates and guides bundle submission to ChimeraX Toolshed.
 
 use crate::commands::build::find_newest_wheel;
-use crate::commands::validate::{validate_bundle, ValidationResult};
+use crate::commands::validate::{ValidationResult, validate_bundle};
 use crate::error::{EchidnaError, Result};
 use std::path::{Path, PathBuf};
 

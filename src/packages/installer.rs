@@ -5,7 +5,7 @@ use crate::error::{EchidnaError, Result};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
-use super::{validate_package_spec, PackageBackend};
+use super::{PackageBackend, validate_package_spec};
 
 /// Result of an install operation.
 #[derive(Debug)]

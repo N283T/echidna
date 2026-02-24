@@ -1,7 +1,7 @@
 //! `echidna workspace` command implementation.
 
 use crate::error::{EchidnaError, Result};
-use crate::workspace::{Workspace, WORKSPACE_FILE};
+use crate::workspace::{WORKSPACE_FILE, Workspace};
 use std::path::PathBuf;
 
 /// Arguments for the workspace init command.

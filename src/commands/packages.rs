@@ -3,7 +3,7 @@
 use crate::chimerax::{ChimeraXExecutor, Verbosity};
 use crate::error::{EchidnaError, Result};
 use crate::packages::{
-    filter_stdlib, ConflictCheckResult, PackageInfo, PackageInstaller, PackageResolver,
+    ConflictCheckResult, PackageInfo, PackageInstaller, PackageResolver, filter_stdlib,
 };
 use std::fs;
 use std::path::PathBuf;

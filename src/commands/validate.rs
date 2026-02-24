@@ -161,16 +161,16 @@ fn validate_build_system(pyproject: &toml::Value, result: &mut ValidationResult)
     }
 
     // Check build-backend
-    if let Some(backend) = build_system.get("build-backend") {
-        if let Some(backend_str) = backend.as_str() {
-            if backend_str != "chimerax.bundle_builder.cx_pep517" {
-                result.add_warning(format!(
-                    "Unexpected build-backend: '{}' (expected 'chimerax.bundle_builder.cx_pep517')",
-                    backend_str
-                ));
-            }
+    if let Some(backend) = build_system.get("build-backend")
+        && let Some(backend_str) = backend.as_str()
+    {
+        if backend_str != "chimerax.bundle_builder.cx_pep517" {
+            result.add_warning(format!(
+                "Unexpected build-backend: '{}' (expected 'chimerax.bundle_builder.cx_pep517')",
+                backend_str
+            ));
         }
-    } else {
+    } else if build_system.get("build-backend").is_none() {
         result.add_error("[build-system].build-backend is missing");
     }
 }
@@ -212,17 +212,16 @@ fn validate_project_section(pyproject: &toml::Value, result: &mut ValidationResu
     }
 
     // Check classifiers for Python version
-    if let Some(classifiers) = project.get("classifiers") {
-        if let Some(classifiers_array) = classifiers.as_array() {
-            let has_python_classifier = classifiers_array.iter().any(|c| {
-                c.as_str()
-                    .map(|s| s.starts_with("Programming Language :: Python"))
-                    .unwrap_or(false)
-            });
-            if !has_python_classifier {
-                result
-                    .add_warning("[project].classifiers should include Python version classifier");
-            }
+    if let Some(classifiers) = project.get("classifiers")
+        && let Some(classifiers_array) = classifiers.as_array()
+    {
+        let has_python_classifier = classifiers_array.iter().any(|c| {
+            c.as_str()
+                .map(|s| s.starts_with("Programming Language :: Python"))
+                .unwrap_or(false)
+        });
+        if !has_python_classifier {
+            result.add_warning("[project].classifiers should include Python version classifier");
         }
     }
 }
@@ -305,23 +304,22 @@ fn validate_source_structure(
     // Check for declared commands/tools matching files
     if let Some(chimerax) = pyproject.get("chimerax") {
         // Check commands
-        if let Some(commands) = chimerax.get("commands") {
-            if commands.as_table().is_some() || commands.as_array().is_some() {
-                let cmd_py = src_dir.join("cmd.py");
-                if !cmd_py.exists() {
-                    result
-                        .add_warning("Commands declared but src/cmd.py not found (common pattern)");
-                }
+        if let Some(commands) = chimerax.get("commands")
+            && (commands.as_table().is_some() || commands.as_array().is_some())
+        {
+            let cmd_py = src_dir.join("cmd.py");
+            if !cmd_py.exists() {
+                result.add_warning("Commands declared but src/cmd.py not found (common pattern)");
             }
         }
 
         // Check tools
-        if let Some(tools) = chimerax.get("tools") {
-            if tools.as_table().is_some() || tools.as_array().is_some() {
-                let tool_py = src_dir.join("tool.py");
-                if !tool_py.exists() {
-                    result.add_warning("Tools declared but src/tool.py not found (common pattern)");
-                }
+        if let Some(tools) = chimerax.get("tools")
+            && (tools.as_table().is_some() || tools.as_array().is_some())
+        {
+            let tool_py = src_dir.join("tool.py");
+            if !tool_py.exists() {
+                result.add_warning("Tools declared but src/tool.py not found (common pattern)");
             }
         }
     }

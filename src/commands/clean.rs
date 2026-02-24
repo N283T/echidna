@@ -96,13 +96,13 @@ fn clean_glob_pattern(project_root: &Path, pattern: &str, dry_run: bool) -> Resu
     let mut count = 0;
 
     // Simple glob matching for *.egg-info pattern
-    if pattern == "*.egg-info" {
-        if let Ok(entries) = fs::read_dir(project_root) {
-            for entry in entries.flatten() {
-                let name = entry.file_name();
-                if name.to_string_lossy().ends_with(".egg-info") {
-                    count += clean_path(&entry.path(), dry_run)?;
-                }
+    if pattern == "*.egg-info"
+        && let Ok(entries) = fs::read_dir(project_root)
+    {
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            if name.to_string_lossy().ends_with(".egg-info") {
+                count += clean_path(&entry.path(), dry_run)?;
             }
         }
     }

@@ -306,9 +306,11 @@ fn test_init_with_type_cpp() {
     assert!(project_dir.join("pyproject.toml").exists());
     assert!(project_dir.join("src/chimerax/myext/__init__.py").exists());
     assert!(project_dir.join("src/chimerax/myext/cmd.py").exists());
-    assert!(project_dir
-        .join("src/chimerax/myext/_extension.cpp")
-        .exists());
+    assert!(
+        project_dir
+            .join("src/chimerax/myext/_extension.cpp")
+            .exists()
+    );
 
     // Verify pyproject.toml contains extension configuration
     let pyproject = fs::read_to_string(project_dir.join("pyproject.toml")).unwrap();

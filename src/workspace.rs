@@ -104,10 +104,10 @@ impl Workspace {
 
             if path.is_dir() {
                 let pyproject = path.join("pyproject.toml");
-                if pyproject.exists() {
-                    if let Some(name) = path.file_name() {
-                        members.push(name.to_string_lossy().to_string());
-                    }
+                if pyproject.exists()
+                    && let Some(name) = path.file_name()
+                {
+                    members.push(name.to_string_lossy().to_string());
                 }
             }
         }

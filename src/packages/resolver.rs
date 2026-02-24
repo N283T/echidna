@@ -6,8 +6,8 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 use super::{
-    validate_package_spec, ConflictCheckResult, ConflictInfo, PackageBackend, PackageChange,
-    PackageInfo,
+    ConflictCheckResult, ConflictInfo, PackageBackend, PackageChange, PackageInfo,
+    validate_package_spec,
 };
 
 /// Package resolver that uses uv (if available) or pip as fallback.
@@ -398,17 +398,16 @@ fn parse_pip_package_version(s: &str) -> Option<(String, String)> {
     // Find the last hyphen that's followed by a digit
     let s = s.trim();
     for (i, _) in s.rmatch_indices('-') {
-        if let Some(rest) = s.get(i + 1..) {
-            if rest
+        if let Some(rest) = s.get(i + 1..)
+            && rest
                 .chars()
                 .next()
                 .map(|c| c.is_ascii_digit())
                 .unwrap_or(false)
-            {
-                let name = &s[..i];
-                let version = rest;
-                return Some((name.to_string(), version.to_string()));
-            }
+        {
+            let name = &s[..i];
+            let version = rest;
+            return Some((name.to_string(), version.to_string()));
         }
     }
     None

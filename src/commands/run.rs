@@ -99,13 +99,12 @@ fn get_command_name(project_dir: &Path) -> Option<String> {
     let pyproject: toml::Value = toml::from_str(&content).ok()?;
 
     // Try [chimerax.command.<name>] first
-    if let Some(chimerax) = pyproject.get("chimerax") {
-        if let Some(command) = chimerax.get("command") {
-            if let Some(table) = command.as_table() {
-                // Return first command name found
-                return table.keys().next().map(|s| s.to_string());
-            }
-        }
+    if let Some(chimerax) = pyproject.get("chimerax")
+        && let Some(command) = chimerax.get("command")
+        && let Some(table) = command.as_table()
+    {
+        // Return first command name found
+        return table.keys().next().map(|s| s.to_string());
     }
 
     None

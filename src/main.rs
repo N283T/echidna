@@ -1,7 +1,7 @@
 //! Echidna CLI entry point.
 
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
-use clap_complete::{generate, Shell};
+use clap_complete::{Shell, generate};
 use echi::chimerax::ChimeraXValidator;
 use echi::commands::{
     build, clean, debug, docs, info, init, install, packages, publish, python, run, setup_ide,
