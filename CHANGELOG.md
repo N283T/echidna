@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Slim down README.md to overview + links (full docs moved to website)
 - Narrow CI paths filter to avoid docs changes triggering Rust checks
+- Unify OutputFormat enum into shared type in lib.rs (was triplicated)
+- Replace raw ANSI escape codes in validator.rs with colored crate
+- Replace dirs crate with directories crate (redundant dependency)
+- Split main.rs into cli.rs (CLI definitions) and main.rs (routing logic)
+- Use data-driven template generation in bundle.rs (reduce repetition)
+- Use type-specific smoke test templates (generic for non-command bundles)
 
 ### Fixed
 - Fix CONTRIBUTING.md Rust version requirement (1.70+ -> 1.85+ for edition 2024)
@@ -23,14 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix Linux detection paths: add DEB/RPM binary paths, remove incorrect /opt path
 - Add Windows detection for older versioned install directories (e.g., "ChimeraX 1.3")
 - Show helpful message when ChimeraX auto-detection fails (including Flatpak hint)
-
-### Changed
-- Unify OutputFormat enum into shared type in lib.rs (was triplicated)
-- Replace raw ANSI escape codes in validator.rs with colored crate
-- Replace dirs crate with directories crate (redundant dependency)
-- Split main.rs into cli.rs (CLI definitions) and main.rs (routing logic)
-- Use data-driven template generation in bundle.rs (reduce repetition)
-- Use type-specific smoke test templates (generic for non-command bundles)
 
 ### Removed
 - Remove unused check_packages() method from PackageResolver

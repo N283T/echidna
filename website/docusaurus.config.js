@@ -19,6 +19,8 @@ const config = {
   projectName: 'echidna',
 
   onBrokenLinks: 'throw',
+  onBrokenAnchors: 'throw',
+  trailingSlash: false,
 
   markdown: {
     hooks: {

@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       rust: ${{ steps.filter.outputs.rust }}
+      docs: ${{ steps.filter.outputs.docs }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
@@ -32,9 +33,11 @@ jobs:
               - '**/*.rs'
               - 'Cargo.toml'
               - 'Cargo.lock'
-              - '.github/workflows/ci.yml'
-              - '.github/workflows/release.yml'
+              - '.github/workflows/**'
+              - '!.github/workflows/deploy-docs.yml'
               - 'templates/**'
+            docs:
+              - 'website/**'
 
   # Format + Clippy in one job (saves a checkout + toolchain install)
   lint:
@@ -84,10 +87,30 @@ jobs:
       - name: Run tests
         run: cargo test --all-features
 
+  # Validate docs build on PRs
+  docs-build:
+    name: Docs Build
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+      - name: Build site
+        working-directory: website
+        run: npm run build
+
   # Summary job for branch protection (always runs)
   ci-success:
     name: CI Success
-    needs: [changes, lint, test, test-windows]
+    needs: [changes, lint, test, test-windows, docs-build]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -101,7 +124,8 @@ jobs:
           # Check required jobs (test-windows is optional on PRs)
           if [ "${{ needs.lint.result }}" == "failure" ] || \
              [ "${{ needs.test.result }}" == "failure" ] || \
-             [ "${{ needs.test-windows.result }}" == "failure" ]; then
+             [ "${{ needs.test-windows.result }}" == "failure" ] || \
+             [ "${{ needs.docs-build.result }}" == "failure" ]; then
             echo "CI failed"
             exit 1
           fi
