@@ -72,7 +72,6 @@ fn test_install_help() {
         .assert()
         .success()
         .stdout(predicate::str::contains("Install the bundle to ChimeraX"))
-        .stdout(predicate::str::contains("--wheel"))
         .stdout(predicate::str::contains("--user"));
 }
 

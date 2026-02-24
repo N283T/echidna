@@ -42,7 +42,6 @@ pub fn execute(args: DebugArgs) -> Result<()> {
         println!("=== Installing ===");
         install::execute(install::InstallArgs {
             path: project_dir.clone(),
-            wheel: None,
             user: false,
             chimerax: executor.executable().to_path_buf(),
             verbosity: args.verbosity,

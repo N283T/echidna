@@ -67,7 +67,6 @@ pub fn execute(args: TestArgs) -> Result<()> {
         println!("{}", "=== Installing ===".cyan().bold());
         install::execute_quiet(install::InstallArgs {
             path: project_dir.clone(),
-            wheel: None,
             user: false,
             chimerax: args.chimerax.clone(),
             verbosity: args.verbosity,
@@ -225,7 +224,6 @@ fn execute_smoke_test(args: &TestArgs, project_dir: &std::path::Path) -> Result<
         println!("{}", "=== Installing ===".cyan().bold());
         install::execute_quiet(install::InstallArgs {
             path: project_dir.to_path_buf(),
-            wheel: None,
             user: false,
             chimerax: args.chimerax.clone(),
             verbosity: args.verbosity,

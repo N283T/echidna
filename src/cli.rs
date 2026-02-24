@@ -71,13 +71,9 @@ pub enum Command {
 
     /// Install the bundle to ChimeraX
     Install {
-        /// Project directory or wheel file
+        /// Project directory
         #[arg(default_value = ".")]
         path: PathBuf,
-
-        /// Specific wheel file to install
-        #[arg(short, long)]
-        wheel: Option<PathBuf>,
 
         /// Install as user bundle
         #[arg(long)]

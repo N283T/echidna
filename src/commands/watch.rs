@@ -206,7 +206,6 @@ fn do_build(args: &WatchArgs, project_dir: &Path) -> Result<()> {
     // Install
     install::execute(install::InstallArgs {
         path: project_dir.to_path_buf(),
-        wheel: None,
         user: false,
         chimerax: args.chimerax.clone(),
         verbosity: args.verbosity,
