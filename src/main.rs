@@ -114,9 +114,8 @@ fn run_cli() -> Result<()> {
             }
         }
 
-        Command::Install { path, wheel, user } => install::execute(install::InstallArgs {
+        Command::Install { path, user } => install::execute(install::InstallArgs {
             path,
-            wheel,
             user: user || config.user_install,
             chimerax: chimerax_path()?,
             verbosity,

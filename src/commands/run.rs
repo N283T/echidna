@@ -39,7 +39,6 @@ pub fn execute(args: RunArgs) -> Result<()> {
         println!("{}", "=== Installing ===".cyan().bold());
         install::execute_quiet(install::InstallArgs {
             path: project_dir.clone(),
-            wheel: None,
             user: false,
             chimerax: args.chimerax.clone(),
             verbosity: args.verbosity,
