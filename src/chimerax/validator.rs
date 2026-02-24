@@ -46,11 +46,11 @@ pub enum ValidationResult {
 
 /// Where to save the ChimeraX configuration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SaveTarget {
+pub(crate) enum SaveTarget {
     /// Save to global config (~/.config/echidna/config.toml)
     Global,
-    /// Don't save
-    None,
+    /// Use for this session only (don't save)
+    SessionOnly,
 }
 
 /// Validates ChimeraX configuration and prompts user for updates if needed.
@@ -229,7 +229,7 @@ impl ChimeraXValidator {
                     }
                     Ok(Some(path.clone()))
                 }
-                SaveTarget::None => {
+                SaveTarget::SessionOnly => {
                     eprintln!(
                         "\n{}",
                         "Using detected path for this session only.".dimmed()
@@ -323,6 +323,8 @@ impl ChimeraXValidator {
 
             Ok(Some(path.clone()))
         } else {
+            eprintln!("\n{}", "\u{2717} Could not auto-detect ChimeraX.".red());
+            eprintln!("  Please install ChimeraX or specify the path with --chimerax");
             Ok(None)
         }
     }
@@ -341,7 +343,7 @@ impl ChimeraXValidator {
 
         Ok(match selection {
             0 => SaveTarget::Global,
-            _ => SaveTarget::None,
+            _ => SaveTarget::SessionOnly,
         })
     }
 }
@@ -389,8 +391,8 @@ mod tests {
     #[test]
     fn test_save_target_values() {
         assert_eq!(SaveTarget::Global, SaveTarget::Global);
-        assert_eq!(SaveTarget::None, SaveTarget::None);
-        assert_ne!(SaveTarget::Global, SaveTarget::None);
+        assert_eq!(SaveTarget::SessionOnly, SaveTarget::SessionOnly);
+        assert_ne!(SaveTarget::Global, SaveTarget::SessionOnly);
     }
 
     #[test]
