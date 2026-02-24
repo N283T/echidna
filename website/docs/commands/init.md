@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# echi init
+# init
 
 Generate a new ChimeraX bundle project.
 

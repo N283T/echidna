@@ -2,7 +2,7 @@
 sidebar_position: 11
 ---
 
-# echi info
+# info
 
 Show bundle information and status.
 

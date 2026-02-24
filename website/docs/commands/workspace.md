@@ -2,7 +2,7 @@
 sidebar_position: 15
 ---
 
-# echi workspace
+# workspace
 
 Manage multi-bundle workspaces. A workspace allows you to develop multiple bundles in a single repository.
 

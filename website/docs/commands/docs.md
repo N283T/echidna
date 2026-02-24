@@ -2,7 +2,7 @@
 sidebar_position: 16
 ---
 
-# echi docs
+# docs
 
 Open ChimeraX documentation in your browser.
 

@@ -2,7 +2,7 @@
 sidebar_position: 8
 ---
 
-# echi venv
+# venv
 
 Set up a virtual environment with ChimeraX Python for IDE support. This enables type checking and autocompletion for `chimerax` imports in your editor.
 

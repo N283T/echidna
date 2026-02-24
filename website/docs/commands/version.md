@@ -2,7 +2,7 @@
 sidebar_position: 14
 ---
 
-# echi version
+# version
 
 Manage bundle version in `pyproject.toml`.
 

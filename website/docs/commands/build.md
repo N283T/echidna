@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# echi build
+# build
 
 Build the bundle wheel using ChimeraX's bundle builder.
 

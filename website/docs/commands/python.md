@@ -2,7 +2,7 @@
 sidebar_position: 12
 ---
 
-# echi python
+# python
 
 Show ChimeraX Python environment information.
 

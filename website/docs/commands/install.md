@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# echi install
+# install
 
 Install the bundle to ChimeraX.
 

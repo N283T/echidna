@@ -2,7 +2,7 @@
 sidebar_position: 13
 ---
 
-# echi packages
+# packages
 
 Manage packages in ChimeraX's Python environment. Uses [uv](https://github.com/astral-sh/uv) when available for faster operations, otherwise falls back to pip.
 

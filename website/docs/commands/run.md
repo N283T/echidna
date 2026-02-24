@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# echi run
+# run
 
 Build, install, and launch ChimeraX in one command. This is the primary development workflow command.
 
