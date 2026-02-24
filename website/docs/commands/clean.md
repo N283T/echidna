@@ -2,7 +2,7 @@
 sidebar_position: 9
 ---
 
-# echi clean
+# clean
 
 Clean build artifacts from the project.
 

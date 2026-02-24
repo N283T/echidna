@@ -2,7 +2,7 @@
 sidebar_position: 17
 ---
 
-# echi publish
+# publish
 
 Publish bundle to the [ChimeraX Toolshed](https://cxtoolshed.rbvi.ucsf.edu/).
 

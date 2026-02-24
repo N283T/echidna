@@ -2,7 +2,7 @@
 sidebar_position: 7
 ---
 
-# echi debug
+# debug
 
 Launch ChimeraX in debug mode.
 

@@ -2,7 +2,7 @@
 sidebar_position: 6
 ---
 
-# echi watch
+# watch
 
 Watch for file changes and auto-rebuild.
 

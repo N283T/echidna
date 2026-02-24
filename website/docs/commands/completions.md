@@ -2,7 +2,7 @@
 sidebar_position: 18
 ---
 
-# echi completions
+# completions
 
 Generate shell completions for `echi`.
 

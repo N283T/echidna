@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# echi test
+# test
 
 Run tests using ChimeraX's Python environment with pytest.
 

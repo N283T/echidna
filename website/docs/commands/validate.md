@@ -2,7 +2,7 @@
 sidebar_position: 10
 ---
 
-# echi validate
+# validate
 
 Validate bundle structure and configuration.
 
