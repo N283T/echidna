@@ -17,6 +17,8 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: Get tag version
         id: tag
         run: |
@@ -82,7 +84,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          key: ${{ matrix.target }}
+          key: release-${{ matrix.target }}
 
       - name: Build release
         run: cargo build --release --target ${{ matrix.target }}
