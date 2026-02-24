@@ -1,8 +1,10 @@
 //! Echidna CLI entry point.
 
-use clap::{CommandFactory, Parser, Subcommand};
-use clap_complete::{Shell, generate};
-use echi::OutputFormat;
+mod cli;
+
+use clap::{CommandFactory, Parser};
+use clap_complete::generate;
+use cli::{Cli, Command, PackagesCommand, WorkspaceCommand};
 use echi::chimerax::ChimeraXValidator;
 use echi::commands::{
     build, clean, debug, docs, info, init, install, packages, publish, python, run, setup_ide,
@@ -10,394 +12,8 @@ use echi::commands::{
 };
 use echi::config::{Config, GlobalConfig};
 use echi::error::{EchidnaError, Result};
-use echi::templates::BundleType;
-use echi::workspace::Workspace;
 use std::io;
-use std::path::PathBuf;
-
-#[derive(Parser)]
-#[command(name = "echi")]
-#[command(about = "ChimeraX Bundle Development CLI")]
-#[command(version)]
-#[command(author)]
-struct Cli {
-    #[command(subcommand)]
-    command: Command,
-
-    /// Verbosity level (-v, -vv, -vvv)
-    #[arg(short, long, action = clap::ArgAction::Count, global = true)]
-    verbose: u8,
-
-    /// Path to ChimeraX executable (overrides auto-detection)
-    #[arg(long, global = true, env = "CHIMERAX_PATH")]
-    chimerax: Option<PathBuf>,
-}
-
-#[derive(Subcommand)]
-enum Command {
-    /// Generate a new ChimeraX bundle project
-    Init {
-        /// Project name or path (e.g., "my-tool" or "./projects/my-tool")
-        /// Creates the directory if it doesn't exist.
-        /// If omitted, initializes in the current directory.
-        path: Option<PathBuf>,
-
-        /// Override the project name (defaults to directory name)
-        #[arg(short, long)]
-        name: Option<String>,
-
-        /// Bundle type (command, tool, tool-html, format, fetch, selector, preset, cpp)
-        #[arg(short = 't', long = "type", value_enum, default_value = "command")]
-        bundle_type: BundleType,
-
-        /// Bundle name (e.g., "ChimeraX-MyTool")
-        #[arg(long)]
-        bundle_name: Option<String>,
-
-        /// Python package name (e.g., "chimerax.mytool")
-        #[arg(long)]
-        package: Option<String>,
-
-        /// Overwrite existing files
-        #[arg(short, long)]
-        force: bool,
-    },
-
-    /// Build the bundle wheel
-    Build {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Clean build directory before building
-        #[arg(long)]
-        clean: bool,
-
-        /// Build all bundles in workspace
-        #[arg(long)]
-        all: bool,
-    },
-
-    /// Install the bundle to ChimeraX
-    Install {
-        /// Project directory or wheel file
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Specific wheel file to install
-        #[arg(short, long)]
-        wheel: Option<PathBuf>,
-
-        /// Install as user bundle
-        #[arg(long)]
-        user: bool,
-    },
-
-    /// Build, install, and launch ChimeraX
-    Run {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Script to execute after launch (.cxc file)
-        #[arg(short, long)]
-        script: Option<PathBuf>,
-
-        /// Skip build step
-        #[arg(long)]
-        no_build: bool,
-
-        /// Skip install step
-        #[arg(long)]
-        no_install: bool,
-
-        /// Run in nogui mode
-        #[arg(long)]
-        nogui: bool,
-    },
-
-    /// Show ChimeraX Python environment info
-    Python {
-        /// Output format
-        #[arg(short, long, default_value = "text")]
-        format: OutputFormat,
-    },
-
-    /// Manage ChimeraX Python packages
-    #[command(subcommand)]
-    Packages(PackagesCommand),
-
-    /// Set up virtual environment with ChimeraX Python for IDE support
-    Venv {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Output directory for venv
-        #[arg(short, long, default_value = ".venv")]
-        output: PathBuf,
-
-        /// Force overwrite existing venv
-        #[arg(short, long)]
-        force: bool,
-
-        /// Skip generating type checker config files
-        #[arg(long)]
-        no_config: bool,
-
-        /// Config files to generate (comma-separated: ty,ruff)
-        #[arg(long, value_delimiter = ',')]
-        configs: Vec<String>,
-    },
-
-    /// Set up IDE/type checker environment (alias for 'venv')
-    #[command(hide = true)]
-    SetupIde {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Output directory for venv
-        #[arg(short, long, default_value = ".venv")]
-        output: PathBuf,
-
-        /// Force overwrite existing venv
-        #[arg(short, long)]
-        force: bool,
-
-        /// Skip generating type checker config files
-        #[arg(long)]
-        no_config: bool,
-
-        /// Config files to generate (comma-separated: ty,ruff)
-        #[arg(long, value_delimiter = ',')]
-        configs: Vec<String>,
-    },
-
-    /// Clean build artifacts
-    Clean {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Also remove .venv directory
-        #[arg(long)]
-        all: bool,
-
-        /// Show what would be deleted without actually deleting
-        #[arg(long)]
-        dry_run: bool,
-    },
-
-    /// Validate bundle structure and configuration
-    Validate {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Treat warnings as errors
-        #[arg(long)]
-        strict: bool,
-    },
-
-    /// Show bundle information and status
-    Info {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-    },
-
-    /// Run tests using ChimeraX Python environment
-    Test {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Only run tests matching the given expression
-        #[arg(short = 'k', long)]
-        filter: Option<String>,
-
-        /// Increase pytest verbosity (adds -v flag to pytest)
-        #[arg(long)]
-        pytest_verbose: bool,
-
-        /// Skip build step
-        #[arg(long)]
-        no_build: bool,
-
-        /// Skip install step
-        #[arg(long)]
-        no_install: bool,
-
-        /// Generate coverage report
-        #[arg(long)]
-        coverage: bool,
-
-        /// Run smoke test (scripts/smoke.cxc) instead of pytest
-        #[arg(long)]
-        smoke: bool,
-
-        /// Test all bundles in workspace
-        #[arg(long)]
-        all: bool,
-
-        /// Additional arguments passed to pytest
-        #[arg(last = true)]
-        pytest_args: Vec<String>,
-    },
-
-    /// Generate shell completions
-    Completions {
-        /// Shell to generate completions for
-        #[arg(value_enum)]
-        shell: Shell,
-    },
-
-    /// Open ChimeraX documentation
-    Docs {
-        /// Open developer documentation
-        #[arg(long)]
-        dev: bool,
-
-        /// Open API reference
-        #[arg(long)]
-        api: bool,
-
-        /// Search query
-        #[arg(short, long)]
-        search: Option<String>,
-    },
-
-    /// Publish bundle to ChimeraX Toolshed
-    Publish {
-        /// Project directory or wheel file
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Validate without publishing
-        #[arg(long)]
-        dry_run: bool,
-    },
-
-    /// Watch for changes and auto-rebuild
-    Watch {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Also launch ChimeraX after build
-        #[arg(long, conflicts_with = "test")]
-        run: bool,
-
-        /// Run tests on changes
-        #[arg(long, conflicts_with = "run")]
-        test: bool,
-    },
-
-    /// Manage bundle version in pyproject.toml
-    Version {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Version action: show (default), patch, minor, major, or X.Y.Z
-        #[arg(default_value = "show")]
-        action: String,
-    },
-
-    /// Launch ChimeraX in debug mode
-    Debug {
-        /// Project directory
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Enable Python debugger (pdb) on exceptions
-        #[arg(long)]
-        pdb: bool,
-
-        /// Enable profiling
-        #[arg(long)]
-        profile: bool,
-
-        /// Skip build step
-        #[arg(long)]
-        no_build: bool,
-
-        /// Skip install step
-        #[arg(long)]
-        no_install: bool,
-    },
-
-    /// Manage bundle workspaces (multiple bundles)
-    #[command(subcommand)]
-    Workspace(WorkspaceCommand),
-}
-
-/// Workspace subcommands.
-#[derive(Subcommand)]
-enum WorkspaceCommand {
-    /// Initialize a workspace in the current directory
-    Init {
-        /// Directory to initialize as workspace
-        #[arg(default_value = ".")]
-        path: PathBuf,
-
-        /// Force overwrite existing workspace.toml
-        #[arg(short, long)]
-        force: bool,
-    },
-
-    /// List workspace members
-    List {
-        /// Directory to search for workspace
-        #[arg(default_value = ".")]
-        path: PathBuf,
-    },
-}
-
-/// Packages subcommands.
-#[derive(Subcommand)]
-enum PackagesCommand {
-    /// List installed packages in ChimeraX Python environment
-    List {
-        /// Output format
-        #[arg(short, long, default_value = "text")]
-        format: OutputFormat,
-
-        /// Include stdlib packages (pip, setuptools, wheel)
-        #[arg(long)]
-        include_stdlib: bool,
-    },
-
-    /// Check for conflicts when adding a package
-    Check {
-        /// Package specification (e.g., "numpy", "requests>=2.28")
-        package: Option<String>,
-
-        /// Read packages from requirements file
-        #[arg(short, long)]
-        requirements: Option<PathBuf>,
-
-        /// Output format
-        #[arg(short, long, default_value = "text")]
-        format: OutputFormat,
-    },
-
-    /// Install packages into ChimeraX Python environment
-    Install {
-        /// Packages to install (e.g., pytest, numpy>=1.20)
-        #[arg(required = true)]
-        packages: Vec<String>,
-
-        /// Upgrade packages if already installed
-        #[arg(short = 'U', long)]
-        upgrade: bool,
-
-        /// Show what would be installed without installing
-        #[arg(long)]
-        dry_run: bool,
-    },
-}
+use std::path::{Path, PathBuf};
 
 fn main() {
     if let Err(e) = run_cli() {
@@ -487,34 +103,7 @@ fn run_cli() -> Result<()> {
 
         Command::Build { path, clean, all } => {
             if all {
-                // Build all bundles in workspace
-                let path = path.canonicalize().unwrap_or(path.clone());
-                match Workspace::load_from_path(&path)? {
-                    Some((root, ws)) => {
-                        let members = ws.member_paths(&root);
-                        if members.is_empty() {
-                            return Err(EchidnaError::ConfigError(
-                                "Workspace has no members".into(),
-                            ));
-                        }
-                        println!("Building {} bundles in workspace...\n", members.len());
-                        let chimerax = chimerax_path()?;
-                        for member in members {
-                            println!("=== {} ===", member.display());
-                            build::execute(build::BuildArgs {
-                                path: member,
-                                clean,
-                                chimerax: chimerax.clone(),
-                                verbosity,
-                            })?;
-                            println!();
-                        }
-                        Ok(())
-                    }
-                    None => Err(EchidnaError::ConfigError(
-                        "No workspace found. Use 'echi workspace init' to create one.".into(),
-                    )),
-                }
+                build_all(&path, clean, &chimerax_path, verbosity)
             } else {
                 build::execute(build::BuildArgs {
                     path,
@@ -638,50 +227,18 @@ fn run_cli() -> Result<()> {
             pytest_args,
         } => {
             if all {
-                // Test all bundles in workspace
-                let path = path.canonicalize().unwrap_or(path.clone());
-                match Workspace::load_from_path(&path)? {
-                    Some((root, ws)) => {
-                        let members = ws.member_paths(&root);
-                        if members.is_empty() {
-                            return Err(EchidnaError::ConfigError(
-                                "Workspace has no members".into(),
-                            ));
-                        }
-                        println!("Testing {} bundles in workspace...\n", members.len());
-                        let chimerax = chimerax_path()?;
-                        let mut all_passed = true;
-                        for member in &members {
-                            println!("=== {} ===", member.display());
-                            let result = testing::execute(testing::TestArgs {
-                                path: member.clone(),
-                                filter: filter.clone(),
-                                pytest_verbose,
-                                no_build,
-                                no_install,
-                                coverage,
-                                smoke,
-                                pytest_args: pytest_args.clone(),
-                                chimerax: chimerax.clone(),
-                                verbosity,
-                            });
-                            if result.is_err() {
-                                all_passed = false;
-                                eprintln!("Tests failed for {}", member.display());
-                            }
-                            println!();
-                        }
-                        if all_passed {
-                            println!("All {} bundles passed tests.", members.len());
-                            Ok(())
-                        } else {
-                            Err(EchidnaError::TestFailed(1))
-                        }
-                    }
-                    None => Err(EchidnaError::ConfigError(
-                        "No workspace found. Use 'echi workspace init' to create one.".into(),
-                    )),
-                }
+                test_all(
+                    &path,
+                    filter,
+                    pytest_verbose,
+                    no_build,
+                    no_install,
+                    coverage,
+                    smoke,
+                    pytest_args,
+                    &chimerax_path,
+                    verbosity,
+                )
             } else {
                 testing::execute(testing::TestArgs {
                     path,
@@ -732,14 +289,10 @@ fn run_cli() -> Result<()> {
 
         Command::Debug {
             path,
-            pdb,
-            profile,
             no_build,
             no_install,
         } => debug::execute(debug::DebugArgs {
             path,
-            pdb,
-            profile,
             no_build,
             no_install,
             chimerax: chimerax_path()?,
@@ -754,6 +307,101 @@ fn run_cli() -> Result<()> {
                 workspace::list(workspace::WorkspaceListArgs { path })
             }
         },
+    }
+}
+
+/// Build all bundles in a workspace.
+fn build_all(
+    path: &Path,
+    clean: bool,
+    chimerax_path: &dyn Fn() -> Result<PathBuf>,
+    verbosity: u8,
+) -> Result<()> {
+    use echi::workspace::Workspace;
+
+    let path = path.canonicalize().unwrap_or(path.to_path_buf());
+    match Workspace::load_from_path(&path)? {
+        Some((root, ws)) => {
+            let members = ws.member_paths(&root);
+            if members.is_empty() {
+                return Err(EchidnaError::ConfigError("Workspace has no members".into()));
+            }
+            println!("Building {} bundles in workspace...\n", members.len());
+            let chimerax = chimerax_path()?;
+            for member in members {
+                println!("=== {} ===", member.display());
+                build::execute(build::BuildArgs {
+                    path: member,
+                    clean,
+                    chimerax: chimerax.clone(),
+                    verbosity,
+                })?;
+                println!();
+            }
+            Ok(())
+        }
+        None => Err(EchidnaError::ConfigError(
+            "No workspace found. Use 'echi workspace init' to create one.".into(),
+        )),
+    }
+}
+
+/// Test all bundles in a workspace.
+#[allow(clippy::too_many_arguments)]
+fn test_all(
+    path: &Path,
+    filter: Option<String>,
+    pytest_verbose: bool,
+    no_build: bool,
+    no_install: bool,
+    coverage: bool,
+    smoke: bool,
+    pytest_args: Vec<String>,
+    chimerax_path: &dyn Fn() -> Result<PathBuf>,
+    verbosity: u8,
+) -> Result<()> {
+    use echi::workspace::Workspace;
+
+    let path = path.canonicalize().unwrap_or(path.to_path_buf());
+    match Workspace::load_from_path(&path)? {
+        Some((root, ws)) => {
+            let members = ws.member_paths(&root);
+            if members.is_empty() {
+                return Err(EchidnaError::ConfigError("Workspace has no members".into()));
+            }
+            println!("Testing {} bundles in workspace...\n", members.len());
+            let chimerax = chimerax_path()?;
+            let mut failed: Vec<String> = Vec::new();
+            for member in &members {
+                println!("=== {} ===", member.display());
+                let result = testing::execute(testing::TestArgs {
+                    path: member.clone(),
+                    filter: filter.clone(),
+                    pytest_verbose,
+                    no_build,
+                    no_install,
+                    coverage,
+                    smoke,
+                    pytest_args: pytest_args.clone(),
+                    chimerax: chimerax.clone(),
+                    verbosity,
+                });
+                if let Err(e) = result {
+                    eprintln!("Tests failed for {}: {}", member.display(), e);
+                    failed.push(member.display().to_string());
+                }
+                println!();
+            }
+            if failed.is_empty() {
+                println!("All {} bundles passed tests.", members.len());
+                Ok(())
+            } else {
+                Err(EchidnaError::TestFailed(failed.len() as i32))
+            }
+        }
+        None => Err(EchidnaError::ConfigError(
+            "No workspace found. Use 'echi workspace init' to create one.".into(),
+        )),
     }
 }
 

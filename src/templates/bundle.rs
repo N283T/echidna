@@ -55,7 +55,8 @@ impl BundleType {
 const PYPROJECT_TOML_TEMPLATE: &str = include_str!("../../templates/command/pyproject.toml.tmpl");
 const INIT_PY_TEMPLATE: &str = include_str!("../../templates/command/init_py.tmpl");
 const CMD_PY_TEMPLATE: &str = include_str!("../../templates/command/cmd_py.tmpl");
-const SMOKE_CXC_TEMPLATE: &str = include_str!("../../templates/common/smoke_cxc.tmpl");
+const SMOKE_CXC_COMMAND: &str = include_str!("../../templates/common/smoke_cxc.tmpl");
+const SMOKE_CXC_GENERIC: &str = include_str!("../../templates/common/smoke_generic_cxc.tmpl");
 const README_MD_TEMPLATE: &str = include_str!("../../templates/common/readme_md.tmpl");
 
 // Tool (Qt) templates
@@ -193,9 +194,15 @@ impl BundleTemplate {
 
         let mut created_files = Vec::new();
 
+        // Select smoke test template based on bundle type
+        let smoke_template = match self.bundle_type {
+            BundleType::Command => SMOKE_CXC_COMMAND,
+            _ => SMOKE_CXC_GENERIC,
+        };
+
         // Common files (README and smoke test)
         let common_files = [
-            (scripts_dir.join("smoke.cxc"), SMOKE_CXC_TEMPLATE),
+            (scripts_dir.join("smoke.cxc"), smoke_template),
             (target_dir.join("README.md"), README_MD_TEMPLATE),
         ];
 
@@ -206,152 +213,84 @@ impl BundleTemplate {
         }
 
         // Type-specific files
-        match self.bundle_type {
-            BundleType::Command => {
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    PYPROJECT_TOML_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("__init__.py"),
-                    INIT_PY_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(&src_dir.join("cmd.py"), CMD_PY_TEMPLATE, &mut created_files)?;
-            }
-            BundleType::Tool => {
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    TOOL_PYPROJECT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("__init__.py"),
-                    TOOL_INIT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("tool.py"),
-                    TOOL_PY_TEMPLATE,
-                    &mut created_files,
-                )?;
-            }
-            BundleType::ToolHtml => {
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    TOOL_HTML_PYPROJECT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("__init__.py"),
-                    TOOL_HTML_INIT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("tool.py"),
-                    TOOL_HTML_PY_TEMPLATE,
-                    &mut created_files,
-                )?;
-            }
-            BundleType::Format => {
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    FORMAT_PYPROJECT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("__init__.py"),
-                    FORMAT_INIT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("open.py"),
-                    FORMAT_OPEN_TEMPLATE,
-                    &mut created_files,
-                )?;
-            }
-            BundleType::Fetch => {
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    FETCH_PYPROJECT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("__init__.py"),
-                    FETCH_INIT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("fetch.py"),
-                    FETCH_PY_TEMPLATE,
-                    &mut created_files,
-                )?;
-            }
-            BundleType::Selector => {
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    SELECTOR_PYPROJECT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("__init__.py"),
-                    SELECTOR_INIT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("selector.py"),
-                    SELECTOR_PY_TEMPLATE,
-                    &mut created_files,
-                )?;
-            }
-            BundleType::Preset => {
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    PRESET_PYPROJECT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("__init__.py"),
-                    PRESET_INIT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &src_dir.join("preset.py"),
-                    PRESET_PY_TEMPLATE,
-                    &mut created_files,
-                )?;
-            }
-            BundleType::Cpp => {
-                // For C++ bundles, we need to put source in src/chimerax/<package>/
-                // because that's where pyproject.toml expects it
-                let cpp_src_dir = src_dir.join("chimerax").join(&self.package_dir);
-                std::fs::create_dir_all(&cpp_src_dir)?;
+        // Each type defines: (pyproject_template, init_template, [(filename, template)])
+        let (pyproject_tmpl, init_tmpl, source_files) = self.type_templates();
 
-                self.write_file(
-                    &target_dir.join("pyproject.toml"),
-                    CPP_PYPROJECT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &cpp_src_dir.join("__init__.py"),
-                    CPP_INIT_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &cpp_src_dir.join("cmd.py"),
-                    CPP_CMD_TEMPLATE,
-                    &mut created_files,
-                )?;
-                self.write_file(
-                    &cpp_src_dir.join("_extension.cpp"),
-                    CPP_EXTENSION_TEMPLATE,
-                    &mut created_files,
-                )?;
-            }
+        // C++ bundles use a different source directory layout
+        let type_src_dir = if self.bundle_type == BundleType::Cpp {
+            let dir = src_dir.join("chimerax").join(&self.package_dir);
+            std::fs::create_dir_all(&dir)?;
+            dir
+        } else {
+            src_dir.clone()
+        };
+
+        self.write_file(
+            &target_dir.join("pyproject.toml"),
+            pyproject_tmpl,
+            &mut created_files,
+        )?;
+        self.write_file(
+            &type_src_dir.join("__init__.py"),
+            init_tmpl,
+            &mut created_files,
+        )?;
+        for (filename, template) in source_files {
+            self.write_file(&type_src_dir.join(filename), template, &mut created_files)?;
         }
 
         Ok(created_files)
+    }
+
+    /// Get the templates for this bundle type.
+    ///
+    /// Returns (pyproject_template, init_template, [(source_filename, template)]).
+    fn type_templates(&self) -> (&str, &str, Vec<(&str, &str)>) {
+        match self.bundle_type {
+            BundleType::Command => (
+                PYPROJECT_TOML_TEMPLATE,
+                INIT_PY_TEMPLATE,
+                vec![("cmd.py", CMD_PY_TEMPLATE)],
+            ),
+            BundleType::Tool => (
+                TOOL_PYPROJECT_TEMPLATE,
+                TOOL_INIT_TEMPLATE,
+                vec![("tool.py", TOOL_PY_TEMPLATE)],
+            ),
+            BundleType::ToolHtml => (
+                TOOL_HTML_PYPROJECT_TEMPLATE,
+                TOOL_HTML_INIT_TEMPLATE,
+                vec![("tool.py", TOOL_HTML_PY_TEMPLATE)],
+            ),
+            BundleType::Format => (
+                FORMAT_PYPROJECT_TEMPLATE,
+                FORMAT_INIT_TEMPLATE,
+                vec![("open.py", FORMAT_OPEN_TEMPLATE)],
+            ),
+            BundleType::Fetch => (
+                FETCH_PYPROJECT_TEMPLATE,
+                FETCH_INIT_TEMPLATE,
+                vec![("fetch.py", FETCH_PY_TEMPLATE)],
+            ),
+            BundleType::Selector => (
+                SELECTOR_PYPROJECT_TEMPLATE,
+                SELECTOR_INIT_TEMPLATE,
+                vec![("selector.py", SELECTOR_PY_TEMPLATE)],
+            ),
+            BundleType::Preset => (
+                PRESET_PYPROJECT_TEMPLATE,
+                PRESET_INIT_TEMPLATE,
+                vec![("preset.py", PRESET_PY_TEMPLATE)],
+            ),
+            BundleType::Cpp => (
+                CPP_PYPROJECT_TEMPLATE,
+                CPP_INIT_TEMPLATE,
+                vec![
+                    ("cmd.py", CPP_CMD_TEMPLATE),
+                    ("_extension.cpp", CPP_EXTENSION_TEMPLATE),
+                ],
+            ),
+        }
     }
 
     /// Write a template file and track it.
