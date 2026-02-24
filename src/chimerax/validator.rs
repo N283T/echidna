@@ -66,7 +66,7 @@ impl ChimeraXValidator {
         project_config: &Option<Config>,
     ) -> ValidationResult {
         // Check project config first
-        if let Some(ref project) = project_config {
+        if let Some(project) = project_config {
             if let Some(ref path) = project.chimerax_path {
                 if path.exists() {
                     let version = get_chimerax_version(path).ok();
@@ -92,7 +92,7 @@ impl ChimeraXValidator {
                 let current_version = get_chimerax_version(path).ok();
 
                 // Check if version changed
-                if let (Some(ref cached), Some(ref current)) =
+                if let (Some(cached), Some(current)) =
                     (&global_config.chimerax_version, &current_version)
                 {
                     if cached != current {
