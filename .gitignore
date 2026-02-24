@@ -9,3 +9,8 @@ plan.md
 __pycache__/
 .venv/
 *.pyc
+
+# Docusaurus
+website/node_modules/
+website/.docusaurus/
+website/build/

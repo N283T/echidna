@@ -5,6 +5,7 @@ edition = "2024"
 description = "ChimeraX Bundle Development CLI"
 license = "MIT"
 repository = "https://github.com/N283T/echidna"
+homepage = "https://n283t.github.io/echidna/"
 
 [dependencies]
 clap = { version = "4", features = ["derive", "env"] }
