@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add Docusaurus documentation site at `website/` (deployed to GitHub Pages)
+- Add GitHub Actions workflow for automatic docs deployment on merge to main
+- Add `homepage` field to `Cargo.toml`
+
+### Changed
+- Slim down README.md to overview + links (full docs moved to website)
+- Narrow CI paths filter to avoid docs changes triggering Rust checks
+
 ### Fixed
 - Fix CONTRIBUTING.md Rust version requirement (1.70+ -> 1.85+ for edition 2024)
 - Fix README.md and config.rs ChimeraX path (Contents/bin -> Contents/MacOS)

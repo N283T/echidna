@@ -32,7 +32,8 @@ jobs:
               - '**/*.rs'
               - 'Cargo.toml'
               - 'Cargo.lock'
-              - '.github/workflows/**'
+              - '.github/workflows/ci.yml'
+              - '.github/workflows/release.yml'
               - 'templates/**'
 
   # Format + Clippy in one job (saves a checkout + toolchain install)
