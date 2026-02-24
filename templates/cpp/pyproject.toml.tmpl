@@ -1,0 +1,36 @@
+[build-system]
+requires = ["ChimeraX-BundleBuilder"]
+build-backend = "chimerax.bundle_builder.cx_pep517"
+
+[project]
+name = "{{bundle_name}}"
+version = "{{version}}"
+description = "{{description}}"
+license = { text = "MIT" }
+dynamic = ["classifiers", "requires-python"]
+
+[project.urls]
+# Homepage = "https://github.com/yourusername/{{bundle_name}}"
+
+[chimerax]
+package = "chimerax.{{package_dir}}"
+pure = false
+min-session-version = 1
+max-session-version = 1
+categories = ["General"]
+classifiers = []
+
+[chimerax.command.{{command_name}}]
+category = "General"
+description = "{{description}}"
+
+# C/C++ extension module
+# The extension will be compiled as _{{package_dir}}
+[chimerax.extension._{{package_dir}}]
+sources = ["src/chimerax/{{package_dir}}/_extension.cpp"]
+include-modules = ["numpy"]
+language = "c++"
+extra-compile-args = ["-std=c++17"]
+
+[chimerax.extension._{{package_dir}}.platform.mac]
+extra-compile-args = ["-std=c++17", "-stdlib=libc++"]

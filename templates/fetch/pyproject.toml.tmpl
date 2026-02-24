@@ -1,0 +1,28 @@
+[build-system]
+requires = ["ChimeraX-BundleBuilder"]
+build-backend = "chimerax.bundle_builder.cx_pep517"
+
+[project]
+name = "{{bundle_name}}"
+version = "{{version}}"
+description = "{{description}}"
+license = { text = "MIT" }
+dynamic = ["classifiers", "requires-python"]
+
+[project.urls]
+# Homepage = "https://github.com/yourusername/{{bundle_name}}"
+
+[chimerax]
+package = "chimerax.{{package_dir}}"
+pure = true
+min-session-version = 1
+max-session-version = 1
+categories = ["General"]
+classifiers = []
+
+[chimerax.provider.open_{{command_name}}]
+manager = "open command"
+name = "{{command_name}}"
+type = "fetch"
+synopsis = "{{description}}"
+example-ids = ["example_id"]

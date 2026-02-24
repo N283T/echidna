@@ -1,0 +1,36 @@
+"""Preset implementation for {{bundle_name}}."""
+
+
+def run_{{command_name}}_preset(session, name, mgr):
+    """Apply the {{command_name}} visualization preset.
+
+    Parameters
+    ----------
+    session : chimerax.core.session.Session
+        The ChimeraX session.
+    name : str
+        The name of the preset being applied.
+    mgr : PresetManager
+        The preset manager.
+
+    Example
+    -------
+    In ChimeraX command line:
+        preset apply "{{tool_name}}"
+    """
+    # Define the preset commands
+    # These commands will be executed when the preset is applied
+    commands = [
+        # Example: Set background color
+        "set bgColor white",
+        # Example: Show cartoon representation
+        "cartoon",
+        # Example: Color by chain
+        "color bychain",
+    ]
+
+    # Execute each command
+    for cmd in commands:
+        mgr.execute(cmd)
+
+    session.logger.info(f"Applied preset: {name}")

@@ -1,0 +1,5 @@
+# Smoke test for ChimeraX-HelloWorld
+# Run with: ChimeraX --script scripts/smoke.cxc
+
+# Add your test commands here
+# Example: hello_world "Test message"

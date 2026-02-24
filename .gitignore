@@ -1,0 +1,9 @@
+/target
+/.claude/
+plan.md
+
+# Build artifacts
+*.egg-info/
+__pycache__/
+.venv/
+*.pyc

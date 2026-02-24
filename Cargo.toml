@@ -1,0 +1,28 @@
+[package]
+name = "echidna"
+version = "0.5.0"
+edition = "2021"
+description = "ChimeraX Bundle Development CLI"
+license = "MIT"
+repository = "https://github.com/nagaet/echidna"
+
+[dependencies]
+clap = { version = "4", features = ["derive", "env"] }
+clap_complete = "4"
+serde = { version = "1", features = ["derive"] }
+toml = "0.9"
+thiserror = "2"
+which = "8"
+dirs = "6"
+serde_json = "1"
+open = "5"
+urlencoding = "2"
+notify = "7"
+dialoguer = "0.11"
+directories = "5"
+colored = "3.1.1"
+
+[dev-dependencies]
+tempfile = "3"
+assert_cmd = "2"
+predicates = "3"

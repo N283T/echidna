@@ -1,0 +1,19 @@
+"""{{bundle_name}} - {{description}}"""
+
+from chimerax.core.toolshed import BundleAPI
+
+
+class _{{command_name_pascal}}API(BundleAPI):
+    """Bundle API for {{bundle_name}}."""
+
+    api_version = 1
+
+    @staticmethod
+    def run_provider(session, name, mgr, **kw):
+        """Run the preset provider."""
+        from .preset import run_{{command_name}}_preset
+
+        run_{{command_name}}_preset(session, name, mgr)
+
+
+bundle_api = _{{command_name_pascal}}API()

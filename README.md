@@ -1,0 +1,292 @@
+# echidna
+
+[![CI](https://github.com/N283T/echidna/actions/workflows/ci.yml/badge.svg)](https://github.com/N283T/echidna/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+ChimeraX Bundle Development CLI - A command-line tool for developing [UCSF ChimeraX](https://www.cgl.ucsf.edu/chimerax/) bundles.
+
+> **Why "echidna"?** In Greek mythology, [Echidna](https://en.wikipedia.org/wiki/Echidna_(mythology)) is the mother of the Chimera. Just as Echidna gave birth to the Chimera, this tool helps you create ChimeraX bundles.
+
+## Features
+
+- **Project scaffolding** - Generate a new bundle project with proper structure
+- **Build automation** - Build wheel packages using ChimeraX's bundle builder
+- **Quick iteration** - Build, install, and launch ChimeraX in one command
+- **IDE integration** - Set up virtual environment for type checkers and IDEs
+- **Testing support** - Run pytest tests using ChimeraX's Python environment
+- **Validation** - Validate bundle structure and configuration
+- **Cross-platform** - Works on macOS, Linux, and Windows
+
+## Installation
+
+### Quick Install (macOS / Linux)
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/N283T/echidna/master/install.sh | sh
+```
+
+### From GitHub Releases
+
+Download the latest binary from the [Releases](https://github.com/N283T/echidna/releases) page.
+
+#### macOS / Linux
+
+```bash
+# Download and extract (replace TARGET with your platform)
+# Targets: x86_64-unknown-linux-gnu, x86_64-apple-darwin, aarch64-apple-darwin
+curl -LO https://github.com/N283T/echidna/releases/latest/download/echidna-TARGET.tar.gz
+tar -xzf echidna-TARGET.tar.gz
+sudo mv echidna /usr/local/bin/
+```
+
+#### Windows
+
+Download `echidna-x86_64-pc-windows-msvc.zip` from Releases and add to PATH.
+
+### From Source
+
+```bash
+git clone https://github.com/N283T/echidna.git
+cd echidna
+cargo install --path .
+```
+
+## Quick Start
+
+```bash
+# Create a new bundle project
+echidna init my-tool
+cd my-tool
+
+# Build, install, and launch ChimeraX
+echidna run
+```
+
+## Commands
+
+### `echidna init [PATH]`
+
+Generate a new ChimeraX bundle project.
+
+```bash
+# Create in new directory
+echidna init my-tool
+
+# Create in current directory with custom name
+echidna init --name my-tool .
+
+# Override bundle/package names
+echidna init --bundle-name ChimeraX-MyTool --package chimerax.mytool .
+```
+
+### `echidna build [PATH]`
+
+Build the bundle wheel using ChimeraX's bundle builder.
+
+```bash
+echidna build           # Build current directory
+echidna build --clean   # Clean build directory first
+```
+
+### `echidna install [PATH]`
+
+Install the bundle to ChimeraX.
+
+```bash
+echidna install         # Install from current directory
+echidna install --user  # Install as user bundle
+echidna install --wheel dist/MyBundle-0.1.0-py3-none-any.whl
+```
+
+### `echidna run [PATH]`
+
+Build, install, and launch ChimeraX in one command.
+
+```bash
+echidna run                     # Full cycle
+echidna run --no-build          # Skip build step
+echidna run --script test.cxc   # Run script after launch
+echidna run --nogui             # Run in nogui mode
+```
+
+### `echidna python`
+
+Show ChimeraX Python environment information.
+
+```bash
+echidna python              # Text output
+echidna python --format json
+```
+
+### `echidna venv [PATH]`
+
+Set up IDE and type checker environment by creating a virtual environment that references ChimeraX's Python.
+
+```bash
+echidna venv                   # Create .venv in current directory
+echidna venv --output .venv    # Specify output directory
+echidna venv --force           # Overwrite existing venv
+echidna venv --no-config       # Skip generating config files
+echidna venv --configs ty,ruff # Generate specific config files
+```
+
+This creates a `.venv` directory that IDEs and type checkers (ty, ruff, pyright) can use to resolve `chimerax` imports.
+
+### `echidna clean [PATH]`
+
+Clean build artifacts from the project.
+
+```bash
+echidna clean              # Remove build/, dist/, *.egg-info/
+echidna clean --all        # Also remove .venv/
+echidna clean --dry-run    # Show what would be deleted
+```
+
+### `echidna validate [PATH]`
+
+Validate bundle structure and configuration.
+
+```bash
+echidna validate           # Validate current directory
+echidna validate ./my-tool # Validate specific project
+```
+
+Checks for:
+- Valid `pyproject.toml` with required fields
+- Correct bundle_info structure
+- Required source files exist
+
+### `echidna info [PATH]`
+
+Show bundle information and status.
+
+```bash
+echidna info               # Show info for current directory
+```
+
+Displays:
+- Bundle name and version
+- Package name and description
+- ChimeraX installation status
+- Build artifacts status
+
+### `echidna test [PATH]`
+
+Run tests using ChimeraX's Python environment with pytest.
+
+```bash
+echidna test                       # Run all tests in tests/
+echidna test -k test_foo           # Filter tests by expression
+echidna test --verbose             # Increase pytest verbosity
+echidna test --no-build            # Skip build step
+echidna test --no-install          # Skip install step
+echidna test --smoke               # Run smoke test (scripts/smoke.cxc)
+echidna test -- --cov=src          # Pass additional pytest args
+```
+
+**Note:** Requires pytest installed in ChimeraX's Python environment:
+```bash
+echidna packages install pytest
+```
+
+### `echidna packages`
+
+Manage packages in ChimeraX's Python environment.
+
+```bash
+# List installed packages
+echidna packages list                    # List all installed packages
+echidna packages list --format json      # JSON output
+
+# Check for conflicts before installing
+echidna packages check numpy             # Check if numpy can be installed
+echidna packages check -r requirements.txt  # Check packages from file
+
+# Install packages
+echidna packages install pytest          # Install single package
+echidna packages install numpy pandas    # Install multiple packages
+echidna packages install "requests>=2.28"  # With version specifier
+echidna packages install -U numpy        # Upgrade if already installed
+echidna packages install --dry-run pytest  # Preview what would be installed
+```
+
+Uses [uv](https://github.com/astral-sh/uv) if available for faster operations, otherwise falls back to pip.
+
+### Other Commands
+
+- `echidna watch` - Watch for file changes and auto-rebuild
+- `echidna debug` - Launch ChimeraX in debug mode (with pdb/profiling)
+- `echidna version` - Manage bundle version in pyproject.toml
+- `echidna workspace` - Manage multi-bundle workspaces
+- `echidna docs` - Open ChimeraX documentation
+- `echidna publish` - Publish bundle to ChimeraX Toolshed
+
+Run `echidna <command> --help` for details on each command.
+
+## Configuration
+
+Create `echidna.toml` in your project root:
+
+```toml
+# Bundle name (e.g., "ChimeraX-MyTool")
+bundle_name = "ChimeraX-MyTool"
+
+# Python package name (e.g., "chimerax.mytool")
+package_name = "chimerax.mytool"
+
+# Path to ChimeraX executable (optional, auto-detected)
+chimerax_path = "/Applications/ChimeraX.app/Contents/bin/ChimeraX"
+
+# Default script to run on `echidna run`
+default_script = "scripts/test.cxc"
+
+# Install as user bundle by default
+user_install = true
+```
+
+## Project Structure
+
+Generated bundle structure:
+
+```
+my-tool/
+├── pyproject.toml      # Bundle metadata and build config
+├── src/
+│   ├── __init__.py     # Bundle initialization
+│   └── cmd.py          # Command implementation
+├── tests/              # Test files (for echidna test)
+│   └── test_*.py       # pytest test modules
+├── scripts/
+│   └── smoke.cxc       # Test script
+└── README.md
+```
+
+## Requirements
+
+- [UCSF ChimeraX](https://www.cgl.ucsf.edu/chimerax/) installed
+- ChimeraX is auto-detected on:
+  - macOS: `/Applications/ChimeraX*.app`
+  - Linux: `/usr/bin/chimerax`, `~/.local/bin/chimerax`
+  - Windows: `C:\Program Files\ChimeraX*`
+
+## Shell Completions
+
+Generate shell completions:
+
+```bash
+# Bash
+echidna completions bash > ~/.local/share/bash-completion/completions/echidna
+
+# Zsh
+echidna completions zsh > ~/.zfunc/_echidna
+
+# Fish
+echidna completions fish > ~/.config/fish/completions/echidna.fish
+
+# PowerShell
+echidna completions powershell > echidna.ps1
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

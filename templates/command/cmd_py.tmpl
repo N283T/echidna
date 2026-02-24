@@ -1,0 +1,22 @@
+"""Command implementation for {{bundle_name}}."""
+
+from chimerax.core.commands import CmdDesc, StringArg
+
+
+def {{command_name}}(session, message="Hello from {{bundle_name}}!"):
+    """Execute the {{command_name}} command.
+
+    Parameters
+    ----------
+    session : chimerax.core.session.Session
+        The ChimeraX session.
+    message : str, optional
+        Message to display.
+    """
+    session.logger.info(message)
+
+
+{{command_name}}_desc = CmdDesc(
+    optional=[("message", StringArg)],
+    synopsis="{{description}}",
+)

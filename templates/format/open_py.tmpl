@@ -1,0 +1,40 @@
+"""File format opener for {{bundle_name}}."""
+
+from chimerax.open_command import OpenerInfo
+
+
+class {{command_name_pascal}}Opener(OpenerInfo):
+    """Opener for {{command_name}} format files."""
+
+    def open(self, session, data, file_name, **kw):
+        """Open a {{command_name}} format file.
+
+        Parameters
+        ----------
+        session : chimerax.core.session.Session
+            The ChimeraX session.
+        data : file-like or str
+            The file data or path.
+        file_name : str
+            The name of the file being opened.
+
+        Returns
+        -------
+        models : list
+            List of models created from the file.
+        status : str
+            Status message to display.
+        """
+        # Read the file content
+        if hasattr(data, "read"):
+            content = data.read()
+        else:
+            with open(data, "r") as f:
+                content = f.read()
+
+        # TODO: Parse the file content and create models
+        session.logger.info(f"Opened {{command_name}} file: {file_name}")
+        session.logger.info(f"Content length: {len(content)} characters")
+
+        # Return empty list of models and status message
+        return [], f"Opened {file_name}"

@@ -1,0 +1,53 @@
+"""Tool implementation for {{bundle_name}}."""
+
+from chimerax.core.tools import ToolInstance
+from chimerax.ui.gui import MainToolWindow
+
+from Qt.QtWidgets import QLabel, QVBoxLayout, QWidget
+
+
+class {{command_name_pascal}}Tool(ToolInstance):
+    """A Qt-based tool panel for {{bundle_name}}."""
+
+    SESSION_ENDURING = False
+    SESSION_SAVE = True
+    help = "help:user/tools/{{command_name}}.html"
+
+    def __init__(self, session, tool_name):
+        super().__init__(session, tool_name)
+
+        self.tool_window = MainToolWindow(self)
+        self._build_ui()
+        self.tool_window.manage("side")
+
+    def _build_ui(self):
+        """Build the tool's user interface."""
+        parent = self.tool_window.ui_area
+
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("Hello from {{bundle_name}}!"))
+
+        container = QWidget()
+        container.setLayout(layout)
+        parent.setWidget(container)
+
+    def delete(self):
+        """Clean up when the tool is closed."""
+        super().delete()
+
+    @classmethod
+    def get_singleton(cls, session, create=True):
+        """Get or create the singleton instance of this tool."""
+        from chimerax.core import tools
+
+        return tools.get_singleton(session, cls, "{{tool_name}}", create=create)
+
+    @staticmethod
+    def take_snapshot(session, flags):
+        """Save tool state for session saving."""
+        return {"version": 1}
+
+    @classmethod
+    def restore_snapshot(cls, session, data):
+        """Restore tool from saved session."""
+        return cls.get_singleton(session)

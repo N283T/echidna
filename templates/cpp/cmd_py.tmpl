@@ -1,0 +1,28 @@
+"""{{command_name}} command implementation."""
+
+from chimerax.core.commands import CmdDesc, IntArg
+
+
+def {{command_name}}(session, count=10):
+    """Run {{command_name}} with the C++ extension.
+
+    Parameters
+    ----------
+    session : Session
+        The ChimeraX session.
+    count : int
+        Number of iterations (default: 10).
+    """
+    # Import the C++ extension module
+    from . import _{{package_dir}}
+
+    # Call a function from the C++ extension
+    result = _{{package_dir}}.compute(count)
+
+    session.logger.info(f"{{tool_name}}: computed {count} iterations, result = {result}")
+
+
+{{command_name}}_desc = CmdDesc(
+    optional=[("count", IntArg)],
+    synopsis="Run {{command_name}} using C++ extension",
+)
