@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-02-25
+
+### Added
+- Detect versioned ChimeraX app bundles on macOS (e.g., ChimeraX-1.11.1.app)
+  Newer versions are preferred when multiple versions are installed.
+
 ## [0.1.1] - 2026-02-25
 
 ### Fixed
@@ -49,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove incomplete --pdb and --profile flags from debug command
 - Clean up 13 stale branches (local and remote)
 
-[Unreleased]: https://github.com/N283T/echidna/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/N283T/echidna/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/N283T/echidna/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/N283T/echidna/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/N283T/echidna/releases/tag/v0.1.0
