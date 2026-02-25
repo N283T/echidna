@@ -13,8 +13,64 @@ fn default_paths() -> Vec<PathBuf> {
             "/Applications/ChimeraX.app/Contents/MacOS/ChimeraX",
         )];
 
+        // Scan for versioned app bundles (e.g., ChimeraX-1.11.1.app, ChimeraX-1.10.app)
+        // Sorted by version descending so newer versions are tried first
+        if let Ok(entries) = std::fs::read_dir("/Applications") {
+            let mut versioned: Vec<(Vec<u32>, PathBuf)> = entries
+                .filter_map(|e| e.ok())
+                .filter_map(|e| {
+                    let name = e.file_name();
+                    let name = name.to_string_lossy();
+                    // Match ChimeraX-1.11.1.app or ChimeraX-1.10-rc2025.05.21.app
+                    let version_str = name
+                        .strip_prefix("ChimeraX-")
+                        .and_then(|s| s.strip_suffix(".app"))?;
+                    // Extract version numbers (handle pre-release suffixes like "-rc2025.05.21")
+                    let version_part = version_str.split('-').next()?;
+                    let parts: Vec<u32> = version_part
+                        .split('.')
+                        .filter_map(|s| s.parse().ok())
+                        .collect();
+                    if parts.is_empty() {
+                        return None;
+                    }
+                    Some((parts, e.path().join("Contents/MacOS/ChimeraX")))
+                })
+                .collect();
+            // Sort by version numbers descending so newer versions are tried first
+            versioned.sort_by(|a, b| b.0.cmp(&a.0));
+            paths.extend(versioned.into_iter().map(|(_, path)| path));
+        }
+
+        // Also check user's home Applications directory
         if let Some(home) = BaseDirs::new().map(|d| d.home_dir().to_path_buf()) {
-            paths.push(home.join("Applications/ChimeraX.app/Contents/MacOS/ChimeraX"));
+            let user_apps = home.join("Applications");
+            paths.push(user_apps.join("ChimeraX.app/Contents/MacOS/ChimeraX"));
+
+            // Scan for versioned apps in user's Applications
+            if let Ok(entries) = std::fs::read_dir(&user_apps) {
+                let mut versioned: Vec<(Vec<u32>, PathBuf)> = entries
+                    .filter_map(|e| e.ok())
+                    .filter_map(|e| {
+                        let name = e.file_name();
+                        let name = name.to_string_lossy();
+                        let version_str = name
+                            .strip_prefix("ChimeraX-")
+                            .and_then(|s| s.strip_suffix(".app"))?;
+                        let version_part = version_str.split('-').next()?;
+                        let parts: Vec<u32> = version_part
+                            .split('.')
+                            .filter_map(|s| s.parse().ok())
+                            .collect();
+                        if parts.is_empty() {
+                            return None;
+                        }
+                        Some((parts, e.path().join("Contents/MacOS/ChimeraX")))
+                    })
+                    .collect();
+                versioned.sort_by(|a, b| b.0.cmp(&a.0));
+                paths.extend(versioned.into_iter().map(|(_, path)| path));
+            }
         }
 
         paths
