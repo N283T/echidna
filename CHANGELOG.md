@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-02-25
+
+### Fixed
+- Fix permission denied error on macOS when ChimeraX is installed in /Applications
+  by using `devel install` instead of `toolshed install` (#18)
+- Improve error handling in install command to provide clear messages when
+  project directory is inaccessible or doesn't exist
+
+### Changed
+- Remove `--wheel` option from install command (no longer needed with `devel install`)
+
 ## [0.1.0] - 2026-02-24
 
 ### Added
@@ -38,5 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove incomplete --pdb and --profile flags from debug command
 - Clean up 13 stale branches (local and remote)
 
-[Unreleased]: https://github.com/N283T/echidna/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/N283T/echidna/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/N283T/echidna/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/N283T/echidna/releases/tag/v0.1.0
